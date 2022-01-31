@@ -36,8 +36,7 @@ class Start(Cog, name="Startup"):
     async def check_if_in_database(self, ctx: Context):
         async with self.bot.user_database.cursor() as cursor:
             await cursor.execute(
-                """SELECT * FROM starters 
-        WHERE user_id = ?""",
+                """SELECT * FROM starters WHERE user_id = ?""",
                 (str(ctx.author.id),),
             )
 
