@@ -68,11 +68,24 @@ class SelectPokemon(View):
         super().__init__(timeout=30)
 
     async def insert_into_database(self, user_id: int, pokemon: str):
-        await self.message.edit(view=None,embed=Embed(color=0xFFFFFF,description=f'Oh? **{pokemon.title()}**, a fine choice! Confirm your pick by typing in `I agree`! '))
-        try : 
-            await self.bot.wait_for('message', check = lambda m : m.author.id == user_id and m.content.lower()=='i agree',timeout=30)
+        await self.message.edit(
+            view=None,
+            embed=Embed(
+                color=0xFFFFFF,
+                description=f"Oh? **{pokemon.title()}**, a fine choice! Confirm your pick by typing in `I agree`! ",
+            ),
+        )
+        try:
+            await self.bot.wait_for(
+                "message",
+                check=lambda m: m.author.id == user_id
+                and m.content.lower() == "i agree",
+                timeout=30,
+            )
         except:
-            return await self.message.channel.send(f'<@!{user_id}> you didn\'t respond with `I Agree`')
+            return await self.message.channel.send(
+                f"<@!{user_id}> you didn't respond with `I Agree`"
+            )
         async with self.bot.user_database.cursor() as cursor:
             await cursor.execute(
                 """INSERT INTO starters (user_id ,pokemon) VALUES (? , ?)""",

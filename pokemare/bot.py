@@ -17,6 +17,7 @@ class PokeMare(Bot):
         self.token = token
         self.load_extension("jishaku")
         self.load_extension("pokemare.cogs.start")
+        self.load_extension("pokemare.cogs.pokedex")
 
     def run(self):
         super().run(self.token)
