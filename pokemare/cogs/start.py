@@ -10,6 +10,7 @@ from disnake.interactions import MessageInteraction
 from disnake.embeds import Embed
 from disnake.file import File
 from disnake.colour import Color
+from importlib_metadata import files
 
 
 desc = """
@@ -50,12 +51,12 @@ class Start(Cog, name="Startup"):
         if has_account:
             return await ctx.reply("You already have  pokemon")
         embed = Embed(color=0xFFFFFF, description=desc, title="Professor Oak")
-        embed.set_image("attachment://choose_pokemon.png")
+        embed.set_image(
+            "https://media.discordapp.net/attachments/937603105443442769/937603206534549514/choose_pokemon.png"
+        )
         embed.set_footer(text="You have 30 seconds to respond")
         my_view = SelectPokemon(ctx.bot)
-        my_view.message = await ctx.send(
-            embed=embed, file=File("images/choose_pokemon.png"), view=my_view
-        )
+        my_view.message = await ctx.send(embed=embed, view=my_view)
 
 
 def setup(bot: Bot):
@@ -74,6 +75,7 @@ class SelectPokemon(View):
                 color=0xFFFFFF,
                 description=f"Oh? **{pokemon.title()}**, a fine choice! Confirm your pick by typing in `I agree`! ",
             ),
+            files=[],
         )
         try:
             await self.bot.wait_for(
@@ -92,6 +94,7 @@ class SelectPokemon(View):
                 (str(user_id), pokemon),
             )
         await self.bot.user_database.commit()
+        return True
 
     async def disable(self):
         for child in self.children:
@@ -101,20 +104,44 @@ class SelectPokemon(View):
     @button(emoji="<:Bulbasaur:936975459688779776>", style=ButtonStyle.green)
     async def bulbasaur(self, button: Button, interaction: MessageInteraction):
         await interaction.response.defer()
-        await self.insert_into_database(interaction.author.id, "bulbasaur")
-        await interaction.response.edit_message("Choosed Bulbasaur")
-        await self.disable()
+        a = await self.insert_into_database(interaction.author.id, "bulbasaur")
+        if not a:
+            return
+        await self.message.edit(
+            embed=Embed(
+                color=0xFFFFFF,
+                description="You picked Bulbasaur\nUse `.dex bulbasaur` to get more info about it!",
+            ),
+            view=None,
+            files=[],
+        )
 
     @button(emoji="<:Charmander:936975190468997120>", style=ButtonStyle.red)
     async def charmander(self, button: Button, interaction: MessageInteraction):
         await interaction.response.defer()
-        await self.insert_into_database(interaction.author.id, "charmander")
-        await interaction.response.edit_message("Choosed Charmander")
-        await self.disable()
+        a = await self.insert_into_database(interaction.author.id, "charmander")
+        if not a:
+            return
+        await self.message.edit(
+            embed=Embed(
+                color=0xFFFFFF,
+                description="You picked Charmander\nUse `.dex charmander` to get more info about it!",
+            ),
+            view=None,
+            files=[],
+        )
 
     @button(emoji="<:squirtle:937042783804473384>", style=ButtonStyle.blurple)
     async def squirtle(self, button: Button, interaction: MessageInteraction):
         await interaction.response.defer()
-        await self.insert_into_database(interaction.author.id, "squirtle")
-        await interaction.response.edit_message("Choosed Squirtle")
-        await self.disable()
+        a = await self.insert_into_database(interaction.author.id, "squirtle")
+        if not a:
+            return
+        await self.message.edit(
+            embed=Embed(
+                color=0xFFFFFF,
+                description="You picked Squirtle\nUse `.dex squirtle` to get more info about it!",
+            ),
+            view=None,
+            files=[],
+        )

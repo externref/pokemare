@@ -19,7 +19,9 @@ class Pokedex(Cog, name="Pokedex"):
     )
     async def pokedex(self, ctx: Context, *, pokemon: str):
         async with aiohttp.ClientSession() as session:
-            response = await session.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon}")
+            response = await session.get(
+                f"https://pokeapi.co/api/v2/pokemon/{pokemon.lower()}"
+            )
             if (await response.text()).lower() == "not found":
                 return await ctx.reply(
                     embed=Embed(
@@ -36,27 +38,34 @@ class Pokedex(Cog, name="Pokedex"):
             )
 
             data2 = await response2.json()
+            emojis = " , ".join(
+                [
+                    str(emoji) + " " + emoji.name.title()
+                    for emoji in ctx.bot.get_guild(862240879339241493).emojis
+                    if emoji.name.lower() in " , ".join(data2["type"]).lower()
+                ]
+            )
             description = {
-                "ID": data2["id"],
-                "Type": " , ".join(data2["type"]),
+                "Type": emojis or " , ".join(data2["type"]),
                 "Height": data2["height"],
                 "Weight": data2["weight"],
-                "Evolution Line": " , ".join(data2["family"]["evolutionLine"]),
-                "Abilities" : " , ".join(data2["abilities"]),
+                "Evolution Line": " , ".join(data2["family"]["evolutionLine"])
+                or "No evolutions",
+                "Abilities": " , ".join(data2["abilities"]),
                 "Genders": " , ".join(data2["gender"]),
             }
 
             embed = Embed(
                 color=Color.red(),
-                description=data2["description"]
-                + "\n\n"
+                description="*"
+                + data2["description"]
+                + "*\n\n"
                 + "\n".join(f"**{key} :** {item}" for key, item in description.items()),
-            ).set_thumbnail(
-                url=data2["sprites"]["animated"]
-            )
+            ).set_thumbnail(url=data2["sprites"]["animated"])
+            # ).set_thumbnail(url=data['sprites']['versions']['generation-iii']['firered-leafgreen']['front_default'])
             embed.set_author(
                 icon_url="https://cdn.discordapp.com/emojis/872786088480100373.webp",
-                name=data["name"].upper(),
+                name=data["name"].upper() + " #" + data2["id"],
             )
             await ctx.reply(embed=embed)
 
