@@ -10,7 +10,6 @@ from disnake.interactions import MessageInteraction
 from disnake.embeds import Embed
 from disnake.file import File
 from disnake.colour import Color
-from importlib_metadata import files
 
 
 desc = """
@@ -21,8 +20,11 @@ Register your trainer account, by picking one of these three starter Pokémon!
 """
 
 
-class Start(Cog, name="Startup"):
+class Start(Cog, name="Startup Command"):
+    """Start with your PokéMare journey !"""
     def __init__(self, bot: Bot) -> None:
+        self.hidden = False
+        self.emoji = "<:trainer:937618424169914398>"
         self.bot = bot
 
     @Cog.listener("on_ready")
