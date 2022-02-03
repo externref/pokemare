@@ -16,12 +16,13 @@ class PokeMare(Bot):
         )
         self.token = token
         self.load_extension("jishaku")
-        self.get_cog('Jishaku').hidden = True
+        self.get_cog("Jishaku").hidden = True
         self.load_extension("pokemare.cogs.start")
         self.load_extension("pokemare.cogs.tools")
         self.load_extension("pokemare.cogs.help")
         self.invite_url = "https://discordapp.com/oauth2/authorize?client_id=936957153225363496&scope=bot+applications.commands&permissions=3691367512"
-        self.support_server_invite_url = 'https://discord.gg/Km8WwHBSrg'
+        self.support_server_invite_url = "https://discord.gg/Km8WwHBSrg"
+
     def run(self):
         super().run(self.token)
 
