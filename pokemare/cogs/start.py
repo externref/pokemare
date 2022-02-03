@@ -22,6 +22,7 @@ Register your trainer account, by picking one of these three starter Pokémon!
 
 class Start(Cog, name="Startup Command"):
     """Start with your PokéMare journey !"""
+
     def __init__(self, bot: Bot) -> None:
         self.hidden = False
         self.emoji = "<:trainer:937618424169914398>"

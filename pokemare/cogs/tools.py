@@ -7,11 +7,13 @@ from disnake.ext.commands.context import Context
 from disnake.embeds import Embed
 from disnake.colour import Color
 
+
 class InventoryInfo(Cog, name="Tools"):
     """Tools to get info about Pokemons and items"""
+
     def __init__(self, bot: Bot):
         self.hidden = False
-        self.emoji = '<:pokedex:937676313764982814>'
+        self.emoji = "<:pokedex:937676313764982814>"
         self.bot = bot
 
     @command(
@@ -70,7 +72,7 @@ class InventoryInfo(Cog, name="Tools"):
                 "Genders": " , ".join(data2["gender"])
                 .replace("female", "♀️")
                 .replace("male", "♂️"),
-                "Egg Group" : " , ".join(data2["egg_groups"])
+                "Egg Group": " , ".join(data2["egg_groups"]),
             }
 
             embed = Embed(
