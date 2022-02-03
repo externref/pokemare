@@ -44,7 +44,7 @@ class MyCustomHelp(HelpCommand):
         _bot: Bot = self.context.bot
         embed = Embed(
             description=f"**🌙 What's Pokemare ?**\nUse : `{(await _bot.get_prefix(self.context.message))[2]}menu` to get a brief info",
-            color=0x04356D,
+            color=_bot.color,
         )
         embed.set_author(name=_bot.user.name.upper() + " HELP")
         embed.set_footer(
@@ -72,7 +72,7 @@ class MyCustomHelp(HelpCommand):
         )
         view.add_item(
             Button(
-                label="Support",
+                label="Join Discord",
                 emoji="♥️",
                 url=_bot.support_server_invite_url,
                 style=ButtonStyle.url,
@@ -94,7 +94,7 @@ class MyCustomHelp(HelpCommand):
             + "```",
         }
         desc = "\n".join("**" + key + " :** " + help_dict[key] for key in help_dict)
-        embed = Embed(description=desc, color=0x04356D)
+        embed = Embed(description=desc, color=self.context.bot.color)
         embed.set_author(
             name=f"{command.name.upper()} COMMAND",
             icon_url=self.context.bot.user.display_avatar,
