@@ -45,14 +45,13 @@ class Start(Cog, name="Startup Command"):
             )
 
             data = await cursor.fetchone()
-        if data:
-            return True
+        return data 
 
     @command(name="start", description="Begin your pokemon journey!")
     async def start(self, ctx: Context):
         has_account = await self.check_if_in_database(ctx)
         if has_account:
-            return await ctx.reply("You already have  pokemon")
+            return await ctx.reply(embed=Embed(title='Professor Oak....',description=f'You have already chose your starter pokemon `{has_account[1].upper()}`!',color=ctx.bot.color).set_thumbnail(url='https://media.discordapp.net/attachments/872567465157201961/872575401891889172/start.png'))
         embed = Embed(color=0xFFFFFF, description=desc, title="Professor Oak")
         embed.set_image(
             "https://media.discordapp.net/attachments/937603105443442769/937603206534549514/choose_pokemon.png"
@@ -60,6 +59,8 @@ class Start(Cog, name="Startup Command"):
         embed.set_footer(text="You have 30 seconds to respond")
         my_view = SelectPokemon(ctx.bot)
         my_view.message = await ctx.send(embed=embed, view=my_view)
+
+    
 
 
 def setup(bot: Bot):
