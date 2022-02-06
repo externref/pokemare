@@ -26,7 +26,7 @@ class PokeMare(Bot):
         self.support_server_invite_url = "https://discord.gg/Km8WwHBSrg"
 
     async def on_ready(self):
-        print('Bot Online')
+        print("Bot Online")
 
     def run(self):
         super().run(self.token)
