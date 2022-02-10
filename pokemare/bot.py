@@ -21,12 +21,13 @@ class PokeMare(Bot):
         self.load_extension("pokemare.cogs.start")
         self.load_extension("pokemare.cogs.tools")
         self.load_extension("pokemare.cogs.general")
+        self.load_extension("pokemare.cogs.miscs")
         self.load_extension("pokemare.cogs.help")
         self.invite_url = "https://discordapp.com/oauth2/authorize?client_id=936957153225363496&scope=bot+applications.commands&permissions=3691367512"
         self.support_server_invite_url = "https://discord.gg/Km8WwHBSrg"
 
     async def on_ready(self):
-        print("Bot Online")
+        print("Bot Online", self.latency * 1000)
 
     def run(self):
         super().run(self.token)
