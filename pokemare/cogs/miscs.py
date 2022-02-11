@@ -2,6 +2,8 @@ import aiohttp
 import asyncio
 import random
 
+from PokeMare.pokemare.songs import SongList
+
 from disnake.file import File
 from disnake.colour import Color
 from disnake.embeds import Embed
@@ -19,8 +21,28 @@ class Miscs(Cog, name="Misc Commands"):
         self.hidden = False
         self.emoji = ""
         self.session = aiohttp.ClientSession()
+        self.song_list = SongList()
+        self.song_list.load_from_json("songs.json")
 
-    @command(name="guessthepokemon", aliases=["gtp"],description='Guess the pokemon from the shadow in the image for rewards!')
+    @command(name="lyrics", description='Recite the lyrics to our Pokemon anthem!')
+    async def lyrics_command(self, ctx: Context, *, song_name: str = "Gotta Catch 'Em All"):
+        song = self.song_list.get_song_by_name(song_name)
+        if song:
+            embed = Embed(
+                title=song.title,
+                description="**Artist**: " + song.artist +
+                            "\n**Album**: " + song.album +
+                            "\n**Released**: " + song.release_year +
+                            "\n**[Youtube Link](" + song.link + ")**"
+                            "\n\n" + song.lyrics + "\n\n",
+                color=ctx.bot.color,
+            )
+            embed.set_image(url=song.image)
+            await ctx.reply(embed=embed)
+        else:
+            await ctx.reply("No song found with title '" + song_name + "'.")
+
+    @command(name="guessthepokemon", aliases=["gtp"], description='Guess the pokemon from the shadow in the image for rewards!')
     async def guess_the_pokemon(self, ctx: Context):
         """Guess for reward"""
         pokemon_id = random.randint(1, 152)
