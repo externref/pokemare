@@ -22,6 +22,7 @@ class SongList:
 
     def __init__(self):
         self.dict = {}
+        self.filename = "songs.json"
 
     def add_song(self, song: SongInfo):
         self.dict[song.title] = song
@@ -39,7 +40,9 @@ class SongList:
             if song.identifier == identifer:
                 return song
 
-    def load_from_json(self, filename: str):
+    def load_from_json(self, filename: str = ""):
+        if not filename:
+            filename = self.filename
         with open("data/" + filename, "r", encoding="utf8") as read_file:
             song_data = load(read_file)
         for song_object in song_data["songs"]:

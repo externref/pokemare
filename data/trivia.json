@@ -1,0 +1,29 @@
+{
+	"trivia_question_types": [
+		"multiple choice"
+	],
+	"trivia_multiple_choice": [
+		{
+			"id": 1,
+			"question": "Which of these Pokémon is a normal type?",
+			"options": [
+				"Dialga",
+				"Wigglytuff",
+				"Pikachu",
+				"Mr. Mime"
+			],
+			"answer": "Wigglytuff"
+		},
+		{
+			"id": 2,
+			"question": "What was Ash's first Pokémon?",
+			"options": [
+				"Bulbasaur",
+				"Squirtle",
+				"Pikachu",
+				"Charmander"
+			],
+			"answer": "Pikachu"
+		}
+	]
+}
