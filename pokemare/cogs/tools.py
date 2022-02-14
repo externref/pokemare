@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 import aiohttp
 from disnake.ext.commands.bot import Bot
 from disnake.ext.commands.cog import Cog
@@ -6,6 +6,7 @@ from disnake.ext.commands.core import command
 from disnake.ext.commands.context import Context
 from disnake.embeds import Embed
 from disnake.colour import Color
+from disnake.message import Message
 
 
 class InventoryInfo(Cog, name="Tools"):
@@ -88,6 +89,51 @@ class InventoryInfo(Cog, name="Tools"):
                 name=data["name"].upper() + " #" + data2["id"],
             )
             await ctx.reply(embed=embed)
+
+    @command(
+        name="move",
+        aliases=["moveinfo"],
+        description="Info about the mentioned move name/ID",
+    )
+    async def move_info(self, ctx: Context, *, move) -> Optional[Message]:
+        """Move info"""
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(f"https://pokeapi.co/api/v2/move/{move}")
+            if (await response.text()).lower() == "not found":
+                return await ctx.reply(
+                    embed=Embed(
+                        color=Color.red(),
+                        title="Pokédex",
+                        description=f"`{move}` is not a valid Move name/id",
+                    ).set_thumbnail(
+                        url="https://cdn.discordapp.com/emojis/872786088480100373.webp"
+                    )
+                )
+        data = await response.json()
+        description = {
+            "Accuracy": data["accuracy"],
+            "Effect Chance": data["effect_chance"],
+            "PP": data["pp"],
+            "Power": data["power"],
+            "Priority": data["priority"],
+            "Damage Class": (data["damage_class"]["name"]),
+            "From Generation": data["generation"]["name"],
+            "Effects": " , ".join(
+                d["short_effect"].replace("$effect_chance", str(data["effect_chance"]))
+                for d in (data["effect_entries"])
+            ),
+        }
+        embed = Embed(
+            color=Color.red(),
+            description="\n".join(
+                f"**{key} :** {item}" for key, item in description.items()
+            ),
+        )
+        embed.set_author(
+            icon_url="https://cdn.discordapp.com/emojis/872786088480100373.webp",
+            name=data["name"].upper() + " #" + str(data["id"]),
+        )
+        await ctx.reply(embed=embed)
 
 
 def setup(bot: Bot):
