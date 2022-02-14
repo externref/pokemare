@@ -1,3 +1,4 @@
+import asyncio
 from json import load
 from random import randint
 from disnake.ext.commands.context import Context
@@ -55,6 +56,7 @@ class TriviaButtons(disnake.ui.View):
         self.answer_index = answer_index
         self.author = author
         self.correct = False
+        self.message = None
 
     @disnake.ui.button(label="A", style=disnake.ButtonStyle.green)
     async def option_a(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):

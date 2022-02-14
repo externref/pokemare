@@ -53,7 +53,7 @@ class Miscs(Cog, name="Misc Commands"):
             if trivia.question_type == "multiple choice":
                 answer_index = trivia.options.index(trivia.answer)
                 view = TriviaButtons(answer_index, ctx.author)
-                message = await ctx.reply(embed=embed, view=view)
+                view.message = await ctx.reply(embed=embed, view=view)
                 await view.wait()
                 if view.correct:
                     embed = Embed(
@@ -66,7 +66,7 @@ class Miscs(Cog, name="Misc Commands"):
                         icon_url=ctx.author.display_avatar,
                     )
                     embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
-                    await message.edit(embed=embed, view=View())
+                    await view.message.edit(embed=embed, view=None)
                 else:
                     embed = Embed(
                         title="Sorry, you got it wrong!",
@@ -78,7 +78,7 @@ class Miscs(Cog, name="Misc Commands"):
                         icon_url=ctx.author.display_avatar,
                     )
                     embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
-                    await message.edit(embed=embed, view=View())
+                    await view.message.edit(embed=embed, view=None)
 
     @trivia_command.error
     async def trivia_command_error(self, ctx: Context, error):
@@ -104,6 +104,7 @@ class Miscs(Cog, name="Misc Commands"):
             await ctx.reply("No song found with title '" + song_name + "'.")
 
     @command(name="guessthepokemon", aliases=["gtp"], description='Guess the pokemon from the shadow in the image for rewards!')
+    @cooldown(1, 30, BucketType.user)
     async def guess_the_pokemon(self, ctx: Context):
         """Guess for reward"""
         pokemon_id = random.randint(1, 152)
@@ -118,8 +119,8 @@ class Miscs(Cog, name="Misc Commands"):
             f"images/hidden_pokemons/{pokemon_id}.png", filename="pokemon_guess.png"
         )
         embed = Embed(
-            title="Guess The Pokemon",
-            description="Send the name of the pokemon in this channel ( within 60 seconds )",
+            title="Who's that Pokemon?!",
+            description="Send the name of the pokemon in this channel\n(within 60 seconds)",
             color=ctx.bot.color,
         )
         embed.set_image(url="attachment://pokemon_guess.png")
@@ -134,7 +135,7 @@ class Miscs(Cog, name="Misc Commands"):
             )
             embed = Embed(
                 color=Color.green(),
-                description=f"GG, you guessed the right pokemon {pokemon_name.upper()}",
+                description=f"Congratulations, you guessed the correct Pokemon: {pokemon_name.upper()}!",
             )
             embed.set_image(url="attachment://pokemon_guess.png")
             file = File(
@@ -145,7 +146,7 @@ class Miscs(Cog, name="Misc Commands"):
         except asyncio.TimeoutError:
             embed = Embed(
                 color=Color.red(),
-                description=f"{ctx.author.name}, you didnt answer on time or your answer were wrong!\nThe pokemon is ||{pokemon_name.upper()}||",
+                description=f"{ctx.author.name}, you didn't answer on time or your answer was wrong!\nThe correct Pokemon was ||{pokemon_name.upper()}!||",
             )
             embed.set_image(url="attachment://pokemon_guess.png")
             file = File(
@@ -154,6 +155,10 @@ class Miscs(Cog, name="Misc Commands"):
             )
             await ctx.send(embed=embed, file=file)
 
+    @guess_the_pokemon.error
+    async def guess_the_pokemon_error(self, ctx: Context, error):
+        if isinstance(error, CommandOnCooldown):
+            await ctx.reply("'Guess the Pokemon' not available. " + str(error) + ".")
 
 def setup(bot: Bot):
     bot.add_cog(Miscs(bot))

@@ -26,7 +26,7 @@ Join this Official Server [Here]({ctx.bot.support_server_invite_url})!
 
 **About PokéMare** :
 
-PokéMares a fan made discord Pokémon bot made by `Realer#0511`, & `Sarthak\_#0460` the bot is made purely for enjoyment! But if you ever decide to donate, to help out with the bots costly funds please do so []!
+PokéMare is a fan made Discord Pokémon bot made by `Realer#0511`, `Sarthak_#0460`, and `Zetaroid#1391`. The bot is made purely for enjoyment! But if you ever decide to donate to help out with the bot's costly operations, please do so []!
 
 Pokémon Copyright ©️ 1995 - 2021 Nintendo/Creatures Inc./GAME FREAK Inc.
 Pokémon And All Respective Names are Trademarks of Nintendo 1996 - 2022
