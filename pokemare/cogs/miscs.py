@@ -2,9 +2,9 @@ import aiohttp
 import asyncio
 import random
 
-from PokeMare.pokemare.songs import SongList
-from PokeMare.pokemare.trivia import TriviaList
-from PokeMare.pokemare.trivia import TriviaButtons
+from pokemare.songs import SongList
+from pokemare.trivia import TriviaList
+from pokemare.trivia import TriviaButtons
 
 from disnake.file import File
 from disnake.colour import Color
@@ -32,14 +32,22 @@ class Miscs(Cog, name="Misc Commands"):
         self.trivia_list = TriviaList()
         self.trivia_list.load_from_json()
 
-    @command(name="trivia", description='Receive a random trivia question!')
+    @command(name="trivia", description="Receive a random trivia question!")
     @cooldown(1, 30, BucketType.user)
     async def trivia_command(self, ctx: Context):
         trivia = self.trivia_list.get_random_trivia()
         random.shuffle(trivia.options)
         if trivia:
-            options_string = "**A.}** " + trivia.options[0] + "\n**B.}** " + \
-                             trivia.options[1] + "\n**C.}** " + trivia.options[2] + "\n**D.}** " + trivia.options[3]
+            options_string = (
+                "**A.}** "
+                + trivia.options[0]
+                + "\n**B.}** "
+                + trivia.options[1]
+                + "\n**C.}** "
+                + trivia.options[2]
+                + "\n**D.}** "
+                + trivia.options[3]
+            )
             embed = Embed(
                 title=trivia.question,
                 description=options_string,
@@ -49,7 +57,9 @@ class Miscs(Cog, name="Misc Commands"):
                 text=f"Trivia for {ctx.author}",
                 icon_url=ctx.author.display_avatar,
             )
-            embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+            embed.set_thumbnail(
+                url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png"
+            )
             if trivia.question_type == "multiple choice":
                 answer_index = trivia.options.index(trivia.answer)
                 view = TriviaButtons(answer_index, ctx.author)
@@ -58,26 +68,33 @@ class Miscs(Cog, name="Misc Commands"):
                 if view.correct:
                     embed = Embed(
                         title="You got it correct!",
-                        description=trivia.response + "\n\nReceived <:pokedollar:941929762912342027>?? PokéDollars",
+                        description=trivia.response
+                        + "\n\nReceived <:pokedollar:941929762912342027>?? PokéDollars",
                         color=Color.green(),
                     )
                     embed.set_footer(
                         text=f"Trivia for {ctx.author}",
                         icon_url=ctx.author.display_avatar,
                     )
-                    embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+                    embed.set_thumbnail(
+                        url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png"
+                    )
                     await view.message.edit(embed=embed, view=None)
                 else:
                     embed = Embed(
                         title="Sorry, you got it wrong!",
-                        description="Correct Answer:\n\n" + trivia.response + "\n\nPlease try again later!",
+                        description="Correct Answer:\n\n"
+                        + trivia.response
+                        + "\n\nPlease try again later!",
                         color=Color.red(),
                     )
                     embed.set_footer(
                         text=f"Trivia for {ctx.author}",
                         icon_url=ctx.author.display_avatar,
                     )
-                    embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+                    embed.set_thumbnail(
+                        url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png"
+                    )
                     await view.message.edit(embed=embed, view=None)
 
     @trivia_command.error
@@ -85,17 +102,24 @@ class Miscs(Cog, name="Misc Commands"):
         if isinstance(error, CommandOnCooldown):
             await ctx.reply("Trivia not available. " + str(error) + ".")
 
-    @command(name="lyrics", description='Recite the lyrics to our Pokemon anthem!')
-    async def lyrics_command(self, ctx: Context, *, song_name: str = "Gotta Catch 'Em All"):
+    @command(name="lyrics", description="Recite the lyrics to our Pokemon anthem!")
+    async def lyrics_command(
+        self, ctx: Context, *, song_name: str = "Gotta Catch 'Em All"
+    ):
         song = self.song_list.get_song_by_name(song_name)
         if song:
             embed = Embed(
                 title=song.title,
-                description="**Artist**: " + song.artist +
-                            "\n**Album**: " + song.album +
-                            "\n**Released**: " + song.release_year +
-                            "\n**[Youtube Link](" + song.link + ")**"
-                            "\n\n" + song.lyrics + "\n\n",
+                description="**Artist**: "
+                + song.artist
+                + "\n**Album**: "
+                + song.album
+                + "\n**Released**: "
+                + song.release_year
+                + "\n**[Youtube Link]("
+                + song.link
+                + ")**"
+                "\n\n" + song.lyrics + "\n\n",
                 color=ctx.bot.color,
             )
             embed.set_image(url=song.image)
@@ -103,7 +127,11 @@ class Miscs(Cog, name="Misc Commands"):
         else:
             await ctx.reply("No song found with title '" + song_name + "'.")
 
-    @command(name="guessthepokemon", aliases=["gtp"], description='Guess the pokemon from the shadow in the image for rewards!')
+    @command(
+        name="guessthepokemon",
+        aliases=["gtp"],
+        description="Guess the pokemon from the shadow in the image for rewards!",
+    )
     @cooldown(1, 30, BucketType.user)
     async def guess_the_pokemon(self, ctx: Context):
         """Guess for reward"""
@@ -131,7 +159,7 @@ class Miscs(Cog, name="Misc Commands"):
                 "message",
                 check=lambda m: m.author == ctx.author
                 and m.content.lower() == pokemon_name,
-                timeout = 60
+                timeout=60,
             )
             embed = Embed(
                 color=Color.green(),
@@ -159,6 +187,7 @@ class Miscs(Cog, name="Misc Commands"):
     async def guess_the_pokemon_error(self, ctx: Context, error):
         if isinstance(error, CommandOnCooldown):
             await ctx.reply("'Guess the Pokemon' not available. " + str(error) + ".")
+
 
 def setup(bot: Bot):
     bot.add_cog(Miscs(bot))

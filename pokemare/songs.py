@@ -2,8 +2,17 @@ from json import load
 
 
 class SongInfo:
-
-    def __init__(self, identifier=0, title="", lyrics="", artist="", album="", release_year="", image="", link=""):
+    def __init__(
+        self,
+        identifier=0,
+        title="",
+        lyrics="",
+        artist="",
+        album="",
+        release_year="",
+        image="",
+        link="",
+    ):
         self.identifier = identifier
         self.title = title
         self.lyrics = lyrics
@@ -19,7 +28,6 @@ class SongInfo:
 
 
 class SongList:
-
     def __init__(self):
         self.dict = {}
         self.filename = "songs.json"
@@ -46,13 +54,17 @@ class SongList:
         with open("data/" + filename, "r", encoding="utf8") as read_file:
             song_data = load(read_file)
         for song_object in song_data["songs"]:
-            song = SongInfo(song_object["id"], song_object["title"], song_object["lyrics"],
-                                   song_object["artist"], song_object["album"], song_object["release_year"],
-                                   song_object["image"], song_object["link"])
+            song = SongInfo(
+                song_object["id"],
+                song_object["title"],
+                song_object["lyrics"],
+                song_object["artist"],
+                song_object["album"],
+                song_object["release_year"],
+                song_object["image"],
+                song_object["link"],
+            )
             self.add_song(song)
             if "alternative_titles" in song_object:
                 for title in song_object["alternative_titles"]:
                     song.add_alternative_title(title)
-
-
-
