@@ -3,6 +3,8 @@ import asyncio
 import random
 
 from PokeMare.pokemare.songs import SongList
+from PokeMare.pokemare.trivia import TriviaList
+from PokeMare.pokemare.trivia import TriviaButtons
 
 from disnake.file import File
 from disnake.colour import Color
@@ -10,7 +12,11 @@ from disnake.embeds import Embed
 from disnake.ext.commands.bot import Bot
 from disnake.ext.commands.cog import Cog
 from disnake.ext.commands.core import command
+from disnake.ext.commands.core import cooldown
+from disnake.ext.commands.core import BucketType
+from disnake.ext.commands.core import CommandOnCooldown
 from disnake.ext.commands.context import Context
+from disnake.ui import Button, View
 
 
 class Miscs(Cog, name="Misc Commands"):
@@ -22,7 +28,40 @@ class Miscs(Cog, name="Misc Commands"):
         self.emoji = ""
         self.session = aiohttp.ClientSession()
         self.song_list = SongList()
-        self.song_list.load_from_json("songs.json")
+        self.song_list.load_from_json()
+        self.trivia_list = TriviaList()
+        self.trivia_list.load_from_json()
+
+    @command(name="trivia", description='Receive a random trivia question!')
+    @cooldown(1, 30, BucketType.user)
+    async def trivia_command(self, ctx: Context):
+        trivia = self.trivia_list.get_random_trivia()
+        random.shuffle(trivia.options)
+        if trivia:
+            options_string = "**A.}** " + trivia.options[0] + "\n**B.}** " + \
+                             trivia.options[1] + "\n**C.}** " + trivia.options[2] + "\n**D.}** " + trivia.options[3]
+            embed = Embed(
+                title=trivia.question,
+                description=options_string,
+                color=ctx.bot.color,
+            )
+            embed.set_footer(
+                text=f"Trivia for {ctx.author}",
+                icon_url=ctx.author.display_avatar,
+            )
+            embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+            if trivia.question_type == "multiple choice":
+                answer_index = trivia.options.index(trivia.answer)
+                view = TriviaButtons(answer_index, ctx.author)
+                await ctx.reply(embed=embed, view=view)
+                await view.wait()
+                if view.correct:
+                    pass  # Do whatever we want when user gets trivia correct
+
+    @trivia_command.error
+    async def trivia_command_error(self, ctx: Context, error):
+        if isinstance(error, CommandOnCooldown):
+            await ctx.reply("Trivia not available. " + str(error) + ".")
 
     @command(name="lyrics", description='Recite the lyrics to our Pokemon anthem!')
     async def lyrics_command(self, ctx: Context, *, song_name: str = "Gotta Catch 'Em All"):
