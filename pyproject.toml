@@ -1,18 +1,19 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool]
 [tool.poetry]
+authors = ["sarthak-py <shiva02939@gmail.com>"]
+description = ""
 name = "Pokemare"
 version = "0.1"
-description = ""
-authors = ["sarthak-py <shiva02939@gmail.com>"]
-
 [tool.poetry.dependencies]
-python = "^3.9"
-disnake = "^2.3.1"
-aiosqlite = "^0.17.0"
 Pillow-PIL = "^0.1dev"
-
+aiosqlite = "^0.17.0"
+disnake = "^2.3.1"
+python = "^3.8"
+aiohttp = "^3.8.1"
+disnake-jishaku = "^2.6.5"
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"

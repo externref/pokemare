@@ -98,7 +98,7 @@ class InventoryInfo(Cog, name="Tools"):
     async def move_info(self, ctx: Context, *, move) -> Optional[Message]:
         """Move info"""
         async with aiohttp.ClientSession() as session:
-            response = await session.get(f"https://pokeapi.co/api/v2/move/{move}")
+            response = await session.get(f"https://pokeapi.co/api/v2/move/{move.replace(' ','-')}")
             if (await response.text()).lower() == "not found":
                 return await ctx.reply(
                     embed=Embed(
