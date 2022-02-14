@@ -1,29 +1,91 @@
 {
-	"trivia_question_types": [
-		"multiple choice"
-	],
-	"trivia_multiple_choice": [
-		{
-			"id": 1,
-			"question": "Which of these Pokémon is a normal type?",
-			"options": [
-				"Dialga",
-				"Wigglytuff",
-				"Pikachu",
-				"Mr. Mime"
-			],
-			"answer": "Wigglytuff"
-		},
-		{
-			"id": 2,
-			"question": "What was Ash's first Pokémon?",
-			"options": [
-				"Bulbasaur",
-				"Squirtle",
-				"Pikachu",
-				"Charmander"
-			],
-			"answer": "Pikachu"
-		}
-	]
+  "trivia_question_types": [
+    "multiple choice"
+  ],
+  "trivia_multiple_choice": [
+    {
+      "id": 1,
+      "question": "Which of these Pokémon is a normal type?",
+      "options": [
+        "Dialga",
+        "Wigglytuff",
+        "Pikachu",
+        "Mr. Mime"
+      ],
+      "answer": "Wigglytuff",
+		"response": "**Wigglytuff**\nWigglytuff started as a normal type, but as of gen 6 is now a dual normal/fairy type."
+    },
+    {
+      "id": 2,
+      "question": "What was Ash's first Pokémon?",
+      "options": [
+        "Bulbasaur",
+        "Squirtle",
+        "Pikachu",
+        "Charmander"
+      ],
+      "answer": "Pikachu",
+		"response": "**Pikachu**\nThe first Pokémon received by Ash Ketchum. He was too late getting to Professor Oak's lab, so he got stuck with the odd choice."
+    },
+    {
+      "id": 3,
+      "question": "What was the first Pokémon to be designed?",
+      "options": [
+        "Rhyhorn",
+        "Rhydon",
+        "Pikachu",
+        "Bulbasaur"
+      ],
+      "answer": "Rhydon",
+      "response": "**Rhydon**\nThe first Pokémon ever designed\nIt may be entry #112 in the Pokédex, but according to Ken Sugimori – the primary designer for the Pokémon games – Rhydon was the first Pokémon ever created. This is also the reason why sprites of Rhydon were so widespread in the original games."
+    },
+    {
+      "id": 4,
+      "question": "Which of the following Pokémon are owned by the gym leader Erika?",
+      "options": [
+        "Vileplume",
+        "Bulbasaur",
+        "Paras",
+        "Exeggcute"
+      ],
+      "answer": "Vileplume",
+      "response": "**Vileplume**\nThe 45th Pokémon in the Pokédex and the 3rd stage evolution of Oddish. Vileplume is Erika’s final Pokémon while facing her."
+    },
+    {
+      "id": 5,
+      "question": "Which Pokemon is a fairy type?",
+      "options": [
+        "Mega-Altaria",
+        "Audino",
+        "Aurorus",
+        "Chansey"
+      ],
+      "answer": "Mega-Altaria",
+      "response": "**Mega-Altaria**\nMega Altaria is an odd Pokemon. It's currently the only Dragon Type Pokemon in the entire game that’s immune to Dragon Type attacks."
+    },
+    {
+      "id": 6,
+      "question": "Which Pokemon is a bug type?",
+      "options": [
+        "Excadrill",
+        "Swadloon",
+        "Dragapult",
+        "Dunsparce"
+      ],
+      "answer": "Swadloon",
+      "response": "**Swadloon**\nSwadloom is a Grass/Bug type. Swadloon is the evolution of Sewaddle and the pre-evolution of Leavany."
+    },
+    {
+      "id": 7,
+      "question": "When did the Pokémon game series debut?",
+      "options": [
+        "February 1996",
+        "February 1997",
+        "February 1998",
+        "February 1999"
+      ],
+      "answer": "February 1996",
+      "response": "**Pokémon's Debute**\nPokémon, electronic game series from Nintendo that debuted in Japan in February 1996 as Pokémon Green and Pokémon Red. The franchise later became wildly popular in the United States and around the world."
+    }
+  ]
 }
