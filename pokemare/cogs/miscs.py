@@ -53,10 +53,32 @@ class Miscs(Cog, name="Misc Commands"):
             if trivia.question_type == "multiple choice":
                 answer_index = trivia.options.index(trivia.answer)
                 view = TriviaButtons(answer_index, ctx.author)
-                await ctx.reply(embed=embed, view=view)
+                message = await ctx.reply(embed=embed, view=view)
                 await view.wait()
                 if view.correct:
-                    pass  # Do whatever we want when user gets trivia correct
+                    embed = Embed(
+                        title="You got it correct!",
+                        description=trivia.response + "\n\nReceived <:pokedollar:941929762912342027>?? PokéDollars",
+                        color=Color.green(),
+                    )
+                    embed.set_footer(
+                        text=f"Trivia for {ctx.author}",
+                        icon_url=ctx.author.display_avatar,
+                    )
+                    embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+                    await message.edit(embed=embed, view=View())
+                else:
+                    embed = Embed(
+                        title="Sorry, you got it wrong!",
+                        description="Correct Answer:\n\n" + trivia.response + "\n\nPlease try again later!",
+                        color=Color.red(),
+                    )
+                    embed.set_footer(
+                        text=f"Trivia for {ctx.author}",
+                        icon_url=ctx.author.display_avatar,
+                    )
+                    embed.set_thumbnail(url="https://www.fortbend.lib.tx.us/sites/default/files/2021-05/pokemon.png")
+                    await message.edit(embed=embed, view=View())
 
     @trivia_command.error
     async def trivia_command_error(self, ctx: Context, error):

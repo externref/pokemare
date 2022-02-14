@@ -1,16 +1,18 @@
 from json import load
 from random import randint
 from disnake.ext.commands.context import Context
+from disnake.embeds import Embed
 import disnake
 
 
 class TriviaInfo:
 
-    def __init__(self, identifier=0, question="", answer="", question_type="", options=None):
+    def __init__(self, identifier=0, question="", answer="", question_type="", response="", options=None):
         self.identifier = identifier
         self.question = question
         self.answer = answer
         self.question_type = question_type
+        self.response = response
         self.options = options
 
 
@@ -42,7 +44,7 @@ class TriviaList:
                 for option in trivia_object['options']:
                     options.append(option)
                 trivia = TriviaInfo(trivia_object["id"], trivia_object["question"], trivia_object["answer"],
-                                    trivia_type, options)
+                                    trivia_type, trivia_object["response"], options)
                 self.add_trivia(trivia, trivia_type)
 
 
@@ -78,8 +80,6 @@ class TriviaButtons(disnake.ui.View):
         self.value = value
         number = ord(self.value) - 65
         if number == self.answer_index:
-            await interaction.response.send_message("You got it correct!", ephemeral=False)
             self.correct = True
-        else:
-            await interaction.response.send_message("Sorry, you got it wrong!", ephemeral=False)
+        await interaction.response.defer()
         self.stop()
