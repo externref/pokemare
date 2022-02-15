@@ -1,110 +1,117 @@
-import aiosqlite
-from aiohttp import ClientSession
-from disnake.ext.commands.bot import Bot
-from disnake.ext.commands.cog import Cog
-from disnake.ext.commands.core import command
-from disnake.ext.commands.context import Context
-from disnake.ui import View, Button, button
-from disnake.enums import ButtonStyle
-from disnake.interactions import MessageInteraction
-from disnake.embeds import Embed
-from disnake.file import File
+import asyncio
+from typing import Optional
+
+
 from disnake.colour import Color
+from disnake.embeds import Embed
+from disnake.message import Message
+from disnake.enums import ButtonStyle
+from disnake.ext.commands.cog import Cog
+from disnake.ui import View, Button, button
+
+# from disnake.ext.commands.core import command
+from disnake.interactions import MessageInteraction
+from disnake.ext.commands.slash_core import slash_command
+from disnake.interactions import ApplicationCommandInteraction, MessageInteraction
 
 
-desc = """
+from .. import PokeMare
+
+DESC = """
 <:moonball:918870698997452831> Welcome to the world of **PokéMare**, and the start of your Pokémon Journey!
 Register your trainer account, by picking one of these three starter Pokémon!
 
 <:Bulbasaur:936975459688779776> : **Bulbasaur** | <:Charmander:936975190468997120> : **Charmander** | <:squirtle:937042783804473384> : **Squirtle**
 """
 
+CLAIMED = """
+Congratulations on the start of your PokéMare Journey! You and your **$pokemon** will be the best of buddy’s, I just know it!
+
+Here’s a gift to start off your adventure: 
+ x10  x3  <:potion:941956192010371073> x1
+"""
+
 
 class Start(Cog, name="Startup Command"):
     """Start with your PokéMare journey !"""
 
-    def __init__(self, bot: Bot) -> None:
+    def __init__(self, bot: PokeMare) -> None:
         self.hidden = False
         self.emoji = "<:trainer:937618424169914398>"
         self.bot = bot
 
-    @Cog.listener("on_ready")
-    async def connect_to_database(self):
-        self.bot.user_database = await aiosqlite.connect("users.db")
-        async with self.bot.user_database.cursor() as cursor:
-            await cursor.execute(
-                """CREATE TABLE IF NOT EXISTS starters (user_id TEXT , pokemon TEXT)"""
-            )
-            await self.bot.user_database.commit()
-
-    async def check_if_in_database(self, ctx: Context):
-        async with self.bot.user_database.cursor() as cursor:
-            await cursor.execute(
-                """SELECT * FROM starters WHERE user_id = ?""",
-                (str(ctx.author.id),),
-            )
-
-            data = await cursor.fetchone()
-        return data
-
-    @command(name="start", description="Begin your pokemon journey!")
-    async def start(self, ctx: Context):
-        has_account = await self.check_if_in_database(ctx)
-        if has_account:
-            return await ctx.reply(
+    @slash_command(
+        name="start",
+        description="Begin your pokemon journey!",
+        guild_ids=[862240879339241493],
+    )
+    async def start_slash_command(
+        self, interaction: ApplicationCommandInteraction
+    ) -> Optional[Message]:
+        data = await self.bot.user_database.get_user_information(
+            str(interaction.author.id)
+        )
+        if data:
+            return await interaction.response.send_message(
                 embed=Embed(
                     title="Professor Oak....",
-                    description=f"You have already chose your starter pokemon `{has_account[1].upper()}`!",
-                    color=ctx.bot.color,
+                    description=f"You have already chose your starter pokemon with ID `{data[2]}`!",
+                    color=self.bot.color,
                 ).set_thumbnail(
                     url="https://media.discordapp.net/attachments/872567465157201961/872575401891889172/start.png"
                 )
             )
-        embed = Embed(color=0xFFFFFF, description=desc, title="Professor Oak")
+        embed = Embed(color=0xFFFFFF, description=DESC, title="Professor Oak")
         embed.set_image(
             "https://media.discordapp.net/attachments/937603105443442769/937603206534549514/choose_pokemon.png"
         )
         embed.set_footer(text="You have 30 seconds to respond")
-        my_view = SelectPokemon(ctx.bot)
-        my_view.message = await ctx.send(embed=embed, view=my_view)
+        my_view = SelectPokemon(self.bot, interaction)
+        await interaction.send(embed=embed, view=my_view)
 
 
-def setup(bot: Bot):
+def setup(bot: PokeMare):
     bot.add_cog(Start(bot))
 
 
 class SelectPokemon(View):
-    def __init__(self, bot):
-        self.bot: Bot = bot
+    def __init__(self, bot, inter):
+        self.bot: PokeMare = bot
+        self.inter: ApplicationCommandInteraction = inter
         super().__init__(timeout=30)
 
     async def insert_into_database(self, user_id: int, pokemon: str):
-        await self.message.edit(
-            view=None,
-            embed=Embed(
-                color=0xFFFFFF,
-                description=f"Oh? **{pokemon.title()}**, a fine choice! Confirm your pick by typing in `I agree`! ",
-            ),
-            files=[],
+        view = View()
+        view.add_item(Button(style=ButtonStyle.green, label="Confirm"))
+        embed = Embed(
+            color=0xFFFFFF,
+            description=f"Oh? **{pokemon.title()}**, a fine choice! Confirm your pick by clicking on `Confirm` ",
+        ).set_thumbnail(
+            url=self.bot.pokemon_dict[pokemon.lower()]["sprites"]["animated"]
         )
+        message = await self.inter.channel.send(view=view, embed=embed)
         try:
-            await self.bot.wait_for(
-                "message",
-                check=lambda m: m.author.id == user_id
-                and m.content.lower() == "i agree",
+            res: MessageInteraction = await self.bot.wait_for(
+                "button_click",
+                check=lambda m: m.author.id == user_id and m.message == message,
                 timeout=30,
             )
-        except:
-            return await self.message.channel.send(
-                f"<@!{user_id}> you didn't respond with `I Agree`"
+            await res.response.defer()
+        except asyncio.TimeoutError:
+            return await self.inter.channel.send(
+                f"<@!{user_id}> you didn't respond on time !"
             )
-        async with self.bot.user_database.cursor() as cursor:
-            await cursor.execute(
-                """INSERT INTO starters (user_id ,pokemon) VALUES (? , ?)""",
-                (str(user_id), pokemon),
+        await self.bot.user_database.insert_user_into_database(
+            user_id, "m", self.bot.pokemon_dict[pokemon.lower()]["id"]
+        )
+        await message.channel.send(
+            embed=Embed(
+                description=CLAIMED.replace("$pokemon", pokemon.title()),
+                color=Color.green(),
+            ).set_thumbnail(
+                url=self.bot.pokemon_dict[pokemon.lower()]["sprites"]["animated"]
             )
-        await self.bot.user_database.commit()
-        return True
+        )
 
     async def disable(self):
         for child in self.children:
@@ -117,13 +124,12 @@ class SelectPokemon(View):
         a = await self.insert_into_database(interaction.author.id, "bulbasaur")
         if not a:
             return
-        await self.message.edit(
+        await self.inter.channel.send(
             embed=Embed(
                 color=0xFFFFFF,
                 description="You picked Bulbasaur\nUse `.dex bulbasaur` to get more info about it!",
             ),
             view=None,
-            files=[],
         )
 
     @button(emoji="<:Charmander:936975190468997120>", style=ButtonStyle.red)
@@ -132,13 +138,12 @@ class SelectPokemon(View):
         a = await self.insert_into_database(interaction.author.id, "charmander")
         if not a:
             return
-        await self.message.edit(
+        await self.inter.channel.send(
             embed=Embed(
                 color=0xFFFFFF,
                 description="You picked Charmander\nUse `.dex charmander` to get more info about it!",
             ),
             view=None,
-            files=[],
         )
 
     @button(emoji="<:squirtle:937042783804473384>", style=ButtonStyle.blurple)
@@ -147,11 +152,10 @@ class SelectPokemon(View):
         a = await self.insert_into_database(interaction.author.id, "squirtle")
         if not a:
             return
-        await self.message.edit(
+        await self.inter.channel.send(
             embed=Embed(
                 color=0xFFFFFF,
                 description="You picked Squirtle\nUse `.dex squirtle` to get more info about it!",
             ),
             view=None,
-            files=[],
         )
