@@ -2,30 +2,29 @@ import aiohttp
 import asyncio
 import random
 
-import disnake
-
-from pokemare.songs import SongList
-from pokemare.trivia import TriviaList
-from pokemare.trivia import TriviaButtons
-
 from disnake.file import File
 from disnake.colour import Color
 from disnake.embeds import Embed
-from disnake.ext.commands.bot import Bot
 from disnake.ext.commands.cog import Cog
 from disnake.ext.commands.core import command
 from disnake.ext.commands import slash_command
 from disnake.ext.commands.core import cooldown
-from disnake.ext.commands.core import BucketType
-from disnake.ext.commands.core import CommandOnCooldown
 from disnake.ext.commands.context import Context
-from disnake.ui import Button, View, TextInput
+from disnake.ext.commands.core import BucketType
+from disnake.ext.commands.slash_core import Option
+from disnake.ext.commands.core import CommandOnCooldown
+from disnake.interactions import ApplicationCommandInteraction
+
+from .. import PokeMare
+from ..songs import SongList
+from ..trivia import TriviaList
+from ..trivia import TriviaButtons
 
 
 class Miscs(Cog, name="Misc Commands"):
     """Other in-game fun commands :3"""
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: PokeMare):
         self.bot = bot
         self.hidden = False
         self.emoji = ""
@@ -35,21 +34,23 @@ class Miscs(Cog, name="Misc Commands"):
         self.trivia_list = TriviaList()
         self.trivia_list.load_from_json()
 
-    @slash_command(name="trivia", description="Take the trivia quiz and earn Pokedollars!")
+    @slash_command(
+        name="trivia", description="Take the trivia quiz and earn Pokedollars!"
+    )
     @cooldown(1, 30, BucketType.user)
-    async def trivia_command(self, inter: disnake.ApplicationCommandInteraction):
+    async def trivia_command(self, inter: ApplicationCommandInteraction):
         trivia = self.trivia_list.get_random_trivia()
         random.shuffle(trivia.options)
         if trivia:
             options_string = (
-                    "**A.}** "
-                    + trivia.options[0]
-                    + "\n**B.}** "
-                    + trivia.options[1]
-                    + "\n**C.}** "
-                    + trivia.options[2]
-                    + "\n**D.}** "
-                    + trivia.options[3]
+                "**A.}** "
+                + trivia.options[0]
+                + "\n**B.}** "
+                + trivia.options[1]
+                + "\n**C.}** "
+                + trivia.options[2]
+                + "\n**D.}** "
+                + trivia.options[3]
             )
             embed = Embed(
                 title=trivia.question,
@@ -72,7 +73,7 @@ class Miscs(Cog, name="Misc Commands"):
                     embed = Embed(
                         title="You got it correct!",
                         description=trivia.response
-                                    + "\n\nReceived <:pokedollar:941929762912342027>?? PokéDollars",
+                        + "\n\nReceived <:pokedollar:941929762912342027>?? PokéDollars",
                         color=Color.green(),
                     )
                     embed.set_footer(
@@ -87,8 +88,8 @@ class Miscs(Cog, name="Misc Commands"):
                     embed = Embed(
                         title="Sorry, you got it wrong!",
                         description="Correct Answer:\n\n"
-                                    + trivia.response
-                                    + "\n\nPlease try again later!",
+                        + trivia.response
+                        + "\n\nPlease try again later!",
                         color=Color.red(),
                     )
                     embed.set_footer(
@@ -101,16 +102,20 @@ class Miscs(Cog, name="Misc Commands"):
                     await inter.edit_original_message(embed=embed, view=None)
 
     @trivia_command.error
-    async def trivia_command_error(self, inter: disnake.ApplicationCommandInteraction, error):
+    async def trivia_command_error(self, inter: ApplicationCommandInteraction, error):
         if isinstance(error, CommandOnCooldown):
             await inter.send("Trivia not available. " + str(error) + ".")
 
-    @slash_command(name="lyrics", description="Get lyrics to your favorite Pokemon themes!",
-                   options=[
-                       disnake.Option("song_name", description="Name of the song")
-                    ])
-    async def lyrics_command(self, inter: disnake.ApplicationCommandInteraction,
-                             song_name: str = "Gotta Catch 'Em All"):
+    @slash_command(
+        name="lyrics",
+        description="Get lyrics to your favorite Pokemon themes!",
+        options=[Option("song_name", description="Name of the song")],
+    )
+    async def lyrics_command(
+        self,
+        inter: ApplicationCommandInteraction,
+        song_name: str = "Gotta Catch 'Em All",
+    ):
         song = self.song_list.get_song_by_name(song_name)
         if song:
             embed = Embed(
@@ -194,5 +199,5 @@ class Miscs(Cog, name="Misc Commands"):
             await ctx.reply("'Guess the Pokemon' not available. " + str(error) + ".")
 
 
-def setup(bot: Bot):
+def setup(bot: PokeMare):
     bot.add_cog(Miscs(bot))

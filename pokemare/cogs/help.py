@@ -1,15 +1,17 @@
-from disnake.ext.commands.bot import Bot
-from disnake.ext.commands.cog import Cog
-from disnake.ext.commands.context import Context
-from disnake.ext.commands.core import command, Command
-from disnake.ext.commands.help import HelpCommand
 from disnake.embeds import Embed
 from disnake.ui import Button, View
 from disnake.enums import ButtonStyle
+from disnake.ext.commands.cog import Cog
+from disnake.ext.commands.context import Context
+from disnake.ext.commands.help import HelpCommand
+from disnake.ext.commands.core import command, Command
+
+
+from .. import PokeMare
 
 
 class HelpMaker(Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: PokeMare):
         self.hidden = True
         self.bot = bot
         bot.help_command = MyCustomHelp()
@@ -22,7 +24,7 @@ class HelpMaker(Cog):
             await ctx.send_help()
 
 
-def setup(bot: Bot):
+def setup(bot: PokeMare):
     bot.add_cog(HelpMaker(bot))
 
 
@@ -41,7 +43,7 @@ class MyCustomHelp(HelpCommand):
         return command_signature
 
     async def send_bot_help(self, mapping):
-        _bot: Bot = self.context.bot
+        _bot: PokeMare = self.context.bot
         embed = Embed(
             description=f"**🌙 What's Pokemare ?**\nUse : `{(await _bot.get_prefix(self.context.message))[2]}menu` to get a brief info",
             color=_bot.color,

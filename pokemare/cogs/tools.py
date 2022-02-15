@@ -1,18 +1,22 @@
-from typing import Union, Optional
 import aiohttp
-from disnake.ext.commands.bot import Bot
+from typing import Union, Optional
+
+
+from disnake.colour import Color
+from disnake.embeds import Embed
+from disnake.message import Message
 from disnake.ext.commands.cog import Cog
 from disnake.ext.commands.core import command
 from disnake.ext.commands.context import Context
-from disnake.embeds import Embed
-from disnake.colour import Color
-from disnake.message import Message
+
+
+from .. import PokeMare
 
 
 class InventoryInfo(Cog, name="Tools"):
     """Tools to get info about Pokemons and items"""
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: PokeMare):
         self.hidden = False
         self.emoji = "<:pokedex:937676313764982814>"
         self.bot = bot
@@ -98,7 +102,9 @@ class InventoryInfo(Cog, name="Tools"):
     async def move_info(self, ctx: Context, *, move) -> Optional[Message]:
         """Move info"""
         async with aiohttp.ClientSession() as session:
-            response = await session.get(f"https://pokeapi.co/api/v2/move/{move.replace(' ','-')}")
+            response = await session.get(
+                f"https://pokeapi.co/api/v2/move/{move.replace(' ','-')}"
+            )
             if (await response.text()).lower() == "not found":
                 return await ctx.reply(
                     embed=Embed(
@@ -136,5 +142,5 @@ class InventoryInfo(Cog, name="Tools"):
         await ctx.reply(embed=embed)
 
 
-def setup(bot: Bot):
+def setup(bot: PokeMare):
     bot.add_cog(InventoryInfo(bot))
