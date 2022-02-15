@@ -1,8 +1,6 @@
-import asyncio
 from json import load
 from random import randint
 from disnake.ext.commands.context import Context
-from disnake.embeds import Embed
 import disnake
 
 
@@ -68,30 +66,21 @@ class TriviaButtons(disnake.ui.View):
         self.answer_index = answer_index
         self.author = author
         self.correct = False
-        self.message = None
 
     @disnake.ui.button(label="A", style=disnake.ButtonStyle.green)
-    async def option_a(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
-    ):
+    async def option_a(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         await self.verify_response("A", interaction)
 
     @disnake.ui.button(label="B", style=disnake.ButtonStyle.green)
-    async def option_b(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
-    ):
+    async def option_b(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         await self.verify_response("B", interaction)
 
     @disnake.ui.button(label="C", style=disnake.ButtonStyle.green)
-    async def option_c(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
-    ):
+    async def option_c(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         await self.verify_response("C", interaction)
 
     @disnake.ui.button(label="D", style=disnake.ButtonStyle.green)
-    async def option_d(
-        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
-    ):
+    async def option_d(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         await self.verify_response("D", interaction)
 
     async def verify_response(self, value, interaction: disnake.MessageInteraction):
