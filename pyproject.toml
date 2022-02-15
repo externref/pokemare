@@ -15,5 +15,6 @@ disnake = "^2.3.1"
 python = "^3.8"
 aiohttp = "^3.8.1"
 disnake-jishaku = "^2.6.5"
+python-dotenv = "^0.19.2"
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
