@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 import random
+import time
 
 from disnake.file import File
 from disnake.colour import Color
@@ -17,9 +18,8 @@ from disnake.interactions import ApplicationCommandInteraction
 
 from .. import PokeMare
 from ..songs import SongList
-from ..trivia import TriviaList
-from ..trivia import TriviaButtons
-
+from ..trivia import TriviaList, TriviaButtons
+from ..mail import MailBox, Mail, MailHomeEmbed, MailHomeView, mailbox_dict
 
 class Miscs(Cog, name="Misc Commands"):
     """Other in-game fun commands :3"""
@@ -33,6 +33,23 @@ class Miscs(Cog, name="Misc Commands"):
         self.song_list.load_from_json()
         self.trivia_list = TriviaList()
         self.trivia_list.load_from_json()
+
+        # TODO: Remove temporary mail testing stuff once we have proper user classes and database and shit
+        self.temporary_user_dict_for_mail = mailbox_dict
+
+    @slash_command(
+        name="mail", description="Send and receive mail in your personal mailbox.", guild_ids=[303282588901179394, 862240879339241493]
+    )
+    async def mail_command(self, inter: ApplicationCommandInteraction):
+        if inter.author.id in self.temporary_user_dict_for_mail:
+            mailbox = self.temporary_user_dict_for_mail[inter.author.id]
+        else:
+            await inter.send("Sorry, mail is in beta right now and only supports a few users for testing.")
+            return
+        mailbox.update_fields()
+        embed = MailHomeEmbed(mailbox, inter.author)
+        view = MailHomeView(mailbox, inter.author, self.bot)
+        await inter.send(embed=embed, view=view)
 
     @slash_command(
         name="trivia", description="Take the trivia quiz and earn Pokedollars!"

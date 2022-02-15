@@ -42,8 +42,7 @@ class Start(Cog, name="Startup Command"):
 
     @slash_command(
         name="start",
-        description="Begin your pokemon journey!",
-        guild_ids=[862240879339241493],
+        description="Begin your pokemon journey!"
     )
     async def start_slash_command(
         self, interaction: ApplicationCommandInteraction
