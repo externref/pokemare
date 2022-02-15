@@ -68,19 +68,27 @@ class TriviaButtons(disnake.ui.View):
         self.correct = False
 
     @disnake.ui.button(label="A", style=disnake.ButtonStyle.green)
-    async def option_a(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def option_a(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.verify_response("A", interaction)
 
     @disnake.ui.button(label="B", style=disnake.ButtonStyle.green)
-    async def option_b(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def option_b(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.verify_response("B", interaction)
 
     @disnake.ui.button(label="C", style=disnake.ButtonStyle.green)
-    async def option_c(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def option_c(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.verify_response("C", interaction)
 
     @disnake.ui.button(label="D", style=disnake.ButtonStyle.green)
-    async def option_d(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def option_d(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.verify_response("D", interaction)
 
     async def verify_response(self, value, interaction: disnake.MessageInteraction):
