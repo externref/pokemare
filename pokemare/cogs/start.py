@@ -42,7 +42,8 @@ class Start(Cog, name="Startup Command"):
 
     @slash_command(
         name="start",
-        description="Begin your pokemon journey!"
+        description="Begin your pokemon journey!",
+        guild_ids=[862240879339241493],
     )
     async def start_slash_command(
         self, interaction: ApplicationCommandInteraction
@@ -54,7 +55,11 @@ class Start(Cog, name="Startup Command"):
             return await interaction.response.send_message(
                 embed=Embed(
                     title="Professor Oak....",
-                    description=f"You have already chose your starter pokemon with ID `{data[2]}`!",
+                    description=f"You have already chose your starter pokemon with ID `#{data[2]}`!".replace(
+                        "#00", ""
+                    ).replace(
+                        "#0", ""
+                    ),
                     color=self.bot.color,
                 ).set_thumbnail(
                     url="https://media.discordapp.net/attachments/872567465157201961/872575401891889172/start.png"
@@ -79,7 +84,9 @@ class SelectPokemon(View):
         self.inter: ApplicationCommandInteraction = inter
         super().__init__(timeout=30)
 
-    async def insert_into_database(self, user_id: int, pokemon: str):
+    async def insert_into_database(
+        self, user_id: int, pokemon: str, interaction: MessageInteraction
+    ):
         view = View()
         view.add_item(Button(style=ButtonStyle.green, label="Confirm"))
         embed = Embed(
@@ -88,11 +95,12 @@ class SelectPokemon(View):
         ).set_thumbnail(
             url=self.bot.pokemon_dict[pokemon.lower()]["sprites"]["animated"]
         )
-        message = await self.inter.channel.send(view=view, embed=embed)
+        await interaction.response.edit_message(view=view, embed=embed)
         try:
             res: MessageInteraction = await self.bot.wait_for(
                 "button_click",
-                check=lambda m: m.author.id == user_id and m.message == message,
+                check=lambda m: m.author.id == user_id
+                and m.message == interaction.message,
                 timeout=30,
             )
             await res.response.defer()
@@ -103,13 +111,19 @@ class SelectPokemon(View):
         await self.bot.user_database.insert_user_into_database(
             user_id, "m", self.bot.pokemon_dict[pokemon.lower()]["id"]
         )
-        await message.channel.send(
+        await res.message.edit(
             embed=Embed(
                 description=CLAIMED.replace("$pokemon", pokemon.title()),
                 color=Color.green(),
-            ).set_thumbnail(
-                url=self.bot.pokemon_dict[pokemon.lower()]["sprites"]["animated"]
             )
+            .set_thumbnail(
+                url="https://media.discordapp.net/attachments/937603105443442769/943207530799181854/start.png"
+            )
+            .set_author(
+                name=f"YOU CHOSE {pokemon.upper()} !",
+                icon_url=self.bot.pokemon_dict[pokemon.lower()]["sprites"]["normal"],
+            ),
+            view=None,
         )
 
     async def disable(self):
@@ -119,8 +133,9 @@ class SelectPokemon(View):
 
     @button(emoji="<:Bulbasaur:936975459688779776>", style=ButtonStyle.green)
     async def bulbasaur(self, button: Button, interaction: MessageInteraction):
-        await interaction.response.defer()
-        a = await self.insert_into_database(interaction.author.id, "bulbasaur")
+        a = await self.insert_into_database(
+            interaction.author.id, "bulbasaur", interaction
+        )
         if not a:
             return
         await self.inter.channel.send(
@@ -133,8 +148,9 @@ class SelectPokemon(View):
 
     @button(emoji="<:Charmander:936975190468997120>", style=ButtonStyle.red)
     async def charmander(self, button: Button, interaction: MessageInteraction):
-        await interaction.response.defer()
-        a = await self.insert_into_database(interaction.author.id, "charmander")
+        a = await self.insert_into_database(
+            interaction.author.id, "charmander", interaction
+        )
         if not a:
             return
         await self.inter.channel.send(
@@ -147,8 +163,9 @@ class SelectPokemon(View):
 
     @button(emoji="<:squirtle:937042783804473384>", style=ButtonStyle.blurple)
     async def squirtle(self, button: Button, interaction: MessageInteraction):
-        await interaction.response.defer()
-        a = await self.insert_into_database(interaction.author.id, "squirtle")
+        a = await self.insert_into_database(
+            interaction.author.id, "squirtle", interaction
+        )
         if not a:
             return
         await self.inter.channel.send(
