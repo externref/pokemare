@@ -158,7 +158,8 @@ class InboxEmbed(disnake.embeds.Embed):
                 subject_unread = ""
                 if not mail.read:
                     subject_unread = " ✉️"
-                value_str = "*From*: " + str(mail.from_id) + "\n*Message preview:*\n" + mail.message[:100] + "..."
+                value_str = "*From*: " + str(mail.from_id) + "\n*Time*: " \
+                            + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p") + "\n"
                 value_str_append = ""
                 if mail.has_attachments():
                     value_str_append = "Att: "
@@ -167,7 +168,7 @@ class InboxEmbed(disnake.embeds.Embed):
                     if mail.item:
                         value_str_append += "<:potion:941956192010371073>"
                     value_str_append += "\n"
-                value_str = value_str_append + value_str
+                value_str = value_str + value_str_append + "\n__Message preview:__\n" + mail.message[:30] + "..."
                 value_str += "\n\n-------------------------------------"
                 self.add_field(name=emoji_list[x] + " SUBJECT: " + mail.subject + subject_unread,
                                value=value_str,
@@ -201,7 +202,8 @@ class MailReadEmbed(disnake.embeds.Embed):
                 attachment_str += "<:potion:941956192010371073>"
             attachment_str += "\n"
         # TODO: Replace from_id with user name using database or trainer class or whatever
-        description_str = "*FROM:* " + str(mail.from_id) + "\n" + attachment_str + "\n"
+        description_str = "*FROM:* " + str(mail.from_id) + "\n" + "*TIME*: " \
+                          + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p" + "\n" + attachment_str)
         super().__init__(title="SUBJECT: " + mail.subject,
                          description=description_str)
         self.user = user
@@ -225,7 +227,7 @@ class MailReadEmbed(disnake.embeds.Embed):
 
     def init_fields(self, mail):
         self.add_field(name="\u200b",
-                       value=mail.message[:1024])
+                       value="__Body:__\n" + mail.message[:800] + "\n----------------------------------------")
 
 
 class MailReadView(disnake.ui.View):
@@ -270,6 +272,7 @@ class MailReadView(disnake.ui.View):
         if not await verify_author(interaction, self.user):
             return
         self.mailbox.delete_mail(self.mail.unique_id)
+        self.page_offset = 0
         embed = InboxEmbed(self.mailbox, self.user, self.page_offset)
         view = InboxView(self.mailbox, self.user, self.page_offset, self.bot)
         await interaction.response.edit_message(embed=embed, view=view)
@@ -300,6 +303,12 @@ class InboxView(disnake.ui.View):
                 self.children[x].disabled = False
             else:
                 self.children[x].disabled = True
+        if len(self.mailbox.sort_mailbox_by_date()) <= 5:
+            self.children[5].disabled = True
+            self.children[6].disabled = True
+        else:
+            self.children[5].disabled = False
+            self.children[6].disabled = False
 
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="1️⃣")
@@ -421,7 +430,7 @@ class SendModal(disnake.ui.Modal):
             placeholder="Enter your message here.",
             custom_id="message",
             style=disnake.TextInputStyle.paragraph,
-            max_length=1000,
+            max_length=800,
         ))
         super().__init__(
             title="Send a New Message",
