@@ -30,7 +30,6 @@ class InventoryInfo(Cog, name="Tools"):
     @slash_command(
         name="profile",
         description="Profile of an user",
-        guild_ids=[862240879339241493],
         options=[
             Option(
                 name="user",
