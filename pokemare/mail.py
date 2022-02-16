@@ -236,8 +236,15 @@ class MailReadView(disnake.ui.View):
         self.user = user
         self.page_offset = page_offset
         self.bot = bot
-        if not mail.has_attachments():
+        self.update_buttons()
+
+    def update_buttons(self):
+        if not self.mail.has_attachments():
             self.children[1].disabled = True
+            self.children[2].disabled = False
+        else:
+            self.children[1].disabled = False
+            self.children[2].disabled = True
 
     @disnake.ui.button(label="Reply", style=disnake.ButtonStyle.grey, emoji="📨")
     async def reply_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
@@ -251,11 +258,21 @@ class MailReadView(disnake.ui.View):
             return
         if self.mail.has_attachments():
             self.mailbox.claim_mail_attachments(self.mail)
+            self.update_buttons()
             embed = MailReadEmbed(self.mailbox, self.user, self.mail)
             view = MailReadView(self.mailbox, self.user, self.mail, self.page_offset, self.bot)
             await interaction.response.edit_message(embed=embed, view=view)
         else:
             await interaction.response.defer()
+
+    @disnake.ui.button(label="Delete", style=disnake.ButtonStyle.grey, emoji="❌")
+    async def delete_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+        if not await verify_author(interaction, self.user):
+            return
+        self.mailbox.delete_mail(self.mail.unique_id)
+        embed = InboxEmbed(self.mailbox, self.user, self.page_offset)
+        view = InboxView(self.mailbox, self.user, self.page_offset, self.bot)
+        await interaction.response.edit_message(embed=embed, view=view)
 
     @disnake.ui.button(label="Inbox", style=disnake.ButtonStyle.grey, emoji="↩️")
     async def back_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
