@@ -8,14 +8,14 @@ import math
 
 class Mail:
     def __init__(
-            self,
-            from_id: int = 0,
-            to_id: int = 0,
-            subject: str = "",
-            message: str = "",
-            mail_type: str = "standard",
-            item=None,
-            pokemon=None
+        self,
+        from_id: int = 0,
+        to_id: int = 0,
+        subject: str = "",
+        message: str = "",
+        mail_type: str = "standard",
+        item=None,
+        pokemon=None,
     ):
         self.unique_id = uuid.uuid4()
         self.from_id = from_id
@@ -109,15 +109,20 @@ class MailBox:
 class MailHomeEmbed(disnake.embeds.Embed):
     def __init__(self, mailbox: MailBox, user):
         mailbox.update_fields()
-        super().__init__(title="Welcome to your PokéMare Mailbox!",
-                         description=":mailbox_with_mail:・Unread Messages: " + str(mailbox.unread) + "\n"
-                                                                                                     "<:potion:941956192010371073>・Unclaimed Items: " + str(
-                             mailbox.items_waiting) + "\n"
-                                                      "<:POKEMON:942110736577077268>・Unclaimed Pokemon: " + str(
-                             mailbox.pokemon_waiting) + "\n\n\n"
-                                                        ":mailbox:・Click 'Inbox' below to view your inbox.\n"
-                                                        ":incoming_envelope:・Click 'Send' below to send a new mail.\n"
-                         )
+        super().__init__(
+            title="Welcome to your PokéMare Mailbox!",
+            description=":mailbox_with_mail:・Unread Messages: "
+            + str(mailbox.unread)
+            + "\n"
+            "<:potion:941956192010371073>・Unclaimed Items: "
+            + str(mailbox.items_waiting)
+            + "\n"
+            "<:POKEMON:942110736577077268>・Unclaimed Pokemon: "
+            + str(mailbox.pokemon_waiting)
+            + "\n\n\n"
+            ":mailbox:・Click 'Inbox' below to view your inbox.\n"
+            ":incoming_envelope:・Click 'Send' below to send a new mail.\n",
+        )
         self.user = user
         self.init_footer()
         self.init_thumbnail()
@@ -130,17 +135,20 @@ class MailHomeEmbed(disnake.embeds.Embed):
         )
 
     def init_thumbnail(self):
-        self.set_thumbnail(
-            url="https://i.imgur.com/BR7T4zp.png"
-        )
+        self.set_thumbnail(url="https://i.imgur.com/BR7T4zp.png")
 
 
 class InboxEmbed(disnake.embeds.Embed):
     def __init__(self, mailbox: MailBox, user, page_offset=0):
         mailbox.update_fields()
-        super().__init__(title="PokéMare Inbox (pg." + str(page_offset + 1) + ")",
-                         description=(":mailbox_with_mail:・Unread Messages: " + str(mailbox.unread)
-                                      + "\n-------------------------------------"))
+        super().__init__(
+            title="PokéMare Inbox (pg." + str(page_offset + 1) + ")",
+            description=(
+                ":mailbox_with_mail:・Unread Messages: "
+                + str(mailbox.unread)
+                + "\n-------------------------------------"
+            ),
+        )
         self.user = user
         self.init_footer()
         self.init_thumbnail()
@@ -158,8 +166,13 @@ class InboxEmbed(disnake.embeds.Embed):
                 subject_unread = ""
                 if not mail.read:
                     subject_unread = " ✉️"
-                value_str = "*From*: " + str(mail.from_id) + "\n*Time*: " \
-                            + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p") + "\n"
+                value_str = (
+                    "*From*: "
+                    + str(mail.from_id)
+                    + "\n*Time*: "
+                    + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p")
+                    + "\n"
+                )
                 value_str_append = ""
                 if mail.has_attachments():
                     value_str_append = "Att: "
@@ -168,15 +181,27 @@ class InboxEmbed(disnake.embeds.Embed):
                     if mail.item:
                         value_str_append += "<:potion:941956192010371073>"
                     value_str_append += "\n"
-                value_str = value_str + value_str_append + "\n__Message preview:__\n" + mail.message[:30] + "..."
+                value_str = (
+                    value_str
+                    + value_str_append
+                    + "\n__Message preview:__\n"
+                    + mail.message[:30]
+                    + "..."
+                )
                 value_str += "\n\n-------------------------------------"
-                self.add_field(name=emoji_list[x] + " SUBJECT: " + mail.subject + subject_unread,
-                               value=value_str,
-                               inline=False
-                               )
+                self.add_field(
+                    name=emoji_list[x] + " SUBJECT: " + mail.subject + subject_unread,
+                    value=value_str,
+                    inline=False,
+                )
             else:
-                self.add_field(name=emoji_list[x] + " - Empty mail slot" + "\n\n----------------------"
-                               , value="\u200b", inline=False)
+                self.add_field(
+                    name=emoji_list[x]
+                    + " - Empty mail slot"
+                    + "\n\n----------------------",
+                    value="\u200b",
+                    inline=False,
+                )
 
     def init_footer(self):
         self.set_footer(
@@ -185,9 +210,7 @@ class InboxEmbed(disnake.embeds.Embed):
         )
 
     def init_thumbnail(self):
-        self.set_thumbnail(
-            url="https://i.imgur.com/BR7T4zp.png"
-        )
+        self.set_thumbnail(url="https://i.imgur.com/BR7T4zp.png")
 
 
 class MailReadEmbed(disnake.embeds.Embed):
@@ -202,10 +225,14 @@ class MailReadEmbed(disnake.embeds.Embed):
                 attachment_str += "<:potion:941956192010371073>"
             attachment_str += "\n"
         # TODO: Replace from_id with user name using database or trainer class or whatever
-        description_str = "*FROM:* " + str(mail.from_id) + "\n" + "*TIME*: " \
-                          + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p" + "\n" + attachment_str)
-        super().__init__(title="SUBJECT: " + mail.subject,
-                         description=description_str)
+        description_str = (
+            "*FROM:* "
+            + str(mail.from_id)
+            + "\n"
+            + "*TIME*: "
+            + mail.timestamp.strftime("%m/%d/%Y, %I:%M:%S %p" + "\n" + attachment_str)
+        )
+        super().__init__(title="SUBJECT: " + mail.subject, description=description_str)
         self.user = user
         self.init_footer()
         self.init_thumbnail()
@@ -221,13 +248,15 @@ class MailReadEmbed(disnake.embeds.Embed):
 
     def init_thumbnail(self):
         # TODO: Make thumbnail the type of mail (ie. dive mail, sky mail, etc)
-        self.set_thumbnail(
-            url="https://i.imgur.com/BR7T4zp.png"
-        )
+        self.set_thumbnail(url="https://i.imgur.com/BR7T4zp.png")
 
     def init_fields(self, mail):
-        self.add_field(name="\u200b",
-                       value="__Body:__\n" + mail.message[:800] + "\n----------------------------------------")
+        self.add_field(
+            name="\u200b",
+            value="__Body:__\n"
+            + mail.message[:800]
+            + "\n----------------------------------------",
+        )
 
 
 class MailReadView(disnake.ui.View):
@@ -249,26 +278,36 @@ class MailReadView(disnake.ui.View):
             self.children[2].disabled = True
 
     @disnake.ui.button(label="Reply", style=disnake.ButtonStyle.grey, emoji="📨")
-    async def reply_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def reply_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
-        await interaction.response.send_modal(modal=SendModal(self.mailbox, self.bot, self.mail.from_id))
+        await interaction.response.send_modal(
+            modal=SendModal(self.mailbox, self.bot, self.mail.from_id)
+        )
 
     @disnake.ui.button(label="Claim all attachments", style=disnake.ButtonStyle.grey)
-    async def claim_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def claim_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         if self.mail.has_attachments():
             self.mailbox.claim_mail_attachments(self.mail)
             self.update_buttons()
             embed = MailReadEmbed(self.mailbox, self.user, self.mail)
-            view = MailReadView(self.mailbox, self.user, self.mail, self.page_offset, self.bot)
+            view = MailReadView(
+                self.mailbox, self.user, self.mail, self.page_offset, self.bot
+            )
             await interaction.response.edit_message(embed=embed, view=view)
         else:
             await interaction.response.defer()
 
     @disnake.ui.button(label="Delete", style=disnake.ButtonStyle.grey, emoji="❌")
-    async def delete_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def delete_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         self.mailbox.delete_mail(self.mail.unique_id)
@@ -278,7 +317,9 @@ class MailReadView(disnake.ui.View):
         await interaction.response.edit_message(embed=embed, view=view)
 
     @disnake.ui.button(label="Inbox", style=disnake.ButtonStyle.grey, emoji="↩️")
-    async def back_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def back_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         embed = InboxEmbed(self.mailbox, self.user, self.page_offset)
@@ -310,29 +351,40 @@ class InboxView(disnake.ui.View):
             self.children[5].disabled = False
             self.children[6].disabled = False
 
-
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="1️⃣")
-    async def one_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def one_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.read_mail(1, interaction)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="2️⃣")
-    async def two_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def two_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.read_mail(2, interaction)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="3️⃣")
-    async def three_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def three_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.read_mail(3, interaction)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="4️⃣")
-    async def four_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def four_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.read_mail(4, interaction)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="5️⃣")
-    async def five_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def five_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         await self.read_mail(5, interaction)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="⬅️")
-    async def left_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def left_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         self.page_offset -= 1
@@ -343,7 +395,9 @@ class InboxView(disnake.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
     @disnake.ui.button(label="\u200b", style=disnake.ButtonStyle.grey, emoji="➡️")
-    async def right_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def right_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         self.page_offset += 1
@@ -354,7 +408,9 @@ class InboxView(disnake.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
     @disnake.ui.button(label="Home", style=disnake.ButtonStyle.grey, emoji="↩️")
-    async def back_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def back_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         embed = MailHomeEmbed(self.mailbox, self.user)
@@ -379,7 +435,9 @@ class MailHomeView(disnake.ui.View):
         self.bot = bot
 
     @disnake.ui.button(label="Inbox", style=disnake.ButtonStyle.grey, emoji="📫")
-    async def inbox_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def inbox_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         embed = InboxEmbed(self.mailbox, self.user, 0)
@@ -387,7 +445,9 @@ class MailHomeView(disnake.ui.View):
         await interaction.response.edit_message(embed=embed, view=view)
 
     @disnake.ui.button(label="Send New Mail", style=disnake.ButtonStyle.grey, emoji="📨")
-    async def send_button_press(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def send_button_press(
+        self, button: disnake.ui.Button, interaction: disnake.MessageInteraction
+    ):
         if not await verify_author(interaction, self.user):
             return
         await interaction.response.send_modal(modal=SendModal(self.mailbox, self.bot))
@@ -403,35 +463,43 @@ class SendModal(disnake.ui.Modal):
         self.bot = bot
         components = []
         if to == 0:
-            components.append(disnake.ui.TextInput(
-                label="To:",
-                placeholder="Enter the Discord name or ID.",
-                custom_id="to",
-                style=disnake.TextInputStyle.short,
-                max_length=50,
-            ))
+            components.append(
+                disnake.ui.TextInput(
+                    label="To:",
+                    placeholder="Enter the Discord name or ID.",
+                    custom_id="to",
+                    style=disnake.TextInputStyle.short,
+                    max_length=50,
+                )
+            )
         else:
-            components.append(disnake.ui.TextInput(
-                label="To:",
-                value=str(to),
-                custom_id="to",
+            components.append(
+                disnake.ui.TextInput(
+                    label="To:",
+                    value=str(to),
+                    custom_id="to",
+                    style=disnake.TextInputStyle.short,
+                    max_length=50,
+                )
+            )
+        components.append(
+            disnake.ui.TextInput(
+                label="Subject",
+                placeholder="Enter the subject line of your message here.",
+                custom_id="subject",
                 style=disnake.TextInputStyle.short,
                 max_length=50,
-            ))
-        components.append(disnake.ui.TextInput(
-            label="Subject",
-            placeholder="Enter the subject line of your message here.",
-            custom_id="subject",
-            style=disnake.TextInputStyle.short,
-            max_length=50,
-        ))
-        components.append(disnake.ui.TextInput(
-            label="Message",
-            placeholder="Enter your message here.",
-            custom_id="message",
-            style=disnake.TextInputStyle.paragraph,
-            max_length=800,
-        ))
+            )
+        )
+        components.append(
+            disnake.ui.TextInput(
+                label="Message",
+                placeholder="Enter your message here.",
+                custom_id="message",
+                style=disnake.TextInputStyle.paragraph,
+                max_length=800,
+            )
+        )
         super().__init__(
             title="Send a New Message",
             custom_id="send_message",
@@ -444,16 +512,15 @@ class SendModal(disnake.ui.Modal):
         to = int(inter.text_values["to"])
         subject = inter.text_values["subject"]
         message = inter.text_values["message"]
-        new_mail = Mail(self.mailbox.user_identifier,
-                        to,
-                        subject,
-                        message)
+        new_mail = Mail(self.mailbox.user_identifier, to, subject, message)
         if to in mailbox_dict.keys():
             to_mailbox = mailbox_dict[to]
             to_mailbox.add_mail(new_mail)
             user = self.bot.get_user(to)
             try:
-                await user.send("You have new mail! View it in your mailbox now with `/mail`!")
+                await user.send(
+                    "You have new mail! View it in your mailbox now with `/mail`!"
+                )
             except:
                 pass
             for key, value in inter.text_values.items():
@@ -502,15 +569,17 @@ zetaroid_mailbox.add_mail(new_mail_5)
 zetaroid_mailbox.add_mail(new_mail_6)
 zetaroid_mailbox.add_mail(new_mail_4)
 zetaroid_mailbox.add_mail(new_mail_2)
-mailbox_dict = {580034015759826944: MailBox(580034015759826944),
-                189312357892096000: zetaroid_mailbox,
-                775243228311191572: MailBox(775243228311191572),
-                735830204286763148: MailBox(735830204286763148),
-                928979024812867614: MailBox(928979024812867614),
-                716840809353314344: MailBox(716840809353314344),
-                404418440187740171: MailBox(404418440187740171),
-                710910223698624513: MailBox(710910223698624513),
-                942293716410982462: MailBox(942293716410982462),
-                533591507744325642: MailBox(533591507744325642),
-                246135956007157762: MailBox(246135956007157762),
-                311977451116822540: MailBox(311977451116822540)}
+mailbox_dict = {
+    580034015759826944: MailBox(580034015759826944),
+    189312357892096000: zetaroid_mailbox,
+    775243228311191572: MailBox(775243228311191572),
+    735830204286763148: MailBox(735830204286763148),
+    928979024812867614: MailBox(928979024812867614),
+    716840809353314344: MailBox(716840809353314344),
+    404418440187740171: MailBox(404418440187740171),
+    710910223698624513: MailBox(710910223698624513),
+    942293716410982462: MailBox(942293716410982462),
+    533591507744325642: MailBox(533591507744325642),
+    246135956007157762: MailBox(246135956007157762),
+    311977451116822540: MailBox(311977451116822540),
+}
