@@ -426,7 +426,10 @@ class SendModal(disnake.ui.Modal):
             to_mailbox = mailbox_dict[to]
             to_mailbox.add_mail(new_mail)
             user = self.bot.get_user(to)
-            await user.send("You have new mail! View it in your mailbox now with `/mail`!")
+            try:
+                await user.send("You have new mail! View it in your mailbox now with `/mail`!")
+            except:
+                pass
             for key, value in inter.text_values.items():
                 embed.add_field(
                     name=key.capitalize(),
