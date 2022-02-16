@@ -1,13 +1,19 @@
 import aiohttp
+from io import BytesIO
 from typing import Union, Optional
 
-
+from disnake.user import User
+from disnake.file import File
 from disnake.colour import Color
 from disnake.embeds import Embed
 from disnake.message import Message
 from disnake.ext.commands.cog import Cog
+from disnake.interactions import AppCmdInter
 from disnake.ext.commands.core import command
 from disnake.ext.commands.context import Context
+from disnake.ext.commands.slash_core import slash_command, Option, OptionType
+
+from PIL import Image, ImageDraw, ImageFont
 
 
 from .. import PokeMare
@@ -20,6 +26,57 @@ class InventoryInfo(Cog, name="Tools"):
         self.hidden = False
         self.emoji = "<:pokedex:937676313764982814>"
         self.bot = bot
+
+    @slash_command(
+        name="profile",
+        description="Profile of an user",
+        guild_ids=[862240879339241493],
+        options=[
+            Option(
+                name="user",
+                description="User to see profile of",
+                required=False,
+                type=OptionType.user,
+            )
+        ],
+    )
+    async def see_profile(self, interaction: AppCmdInter, user: User = None) -> None:
+        await interaction.response.defer()
+        user = user or interaction.author
+        data = await self.bot.user_database.get_user_information(user.id)
+        if not data:
+            return await interaction.edit_original_message(
+                "The user has not started their journey yet.", ephemeral=True
+            )
+        bg_image = Image.open("images/card_bg.png")
+        user_avatar = Image.open(BytesIO(await user.display_avatar.read())).resize(
+            (225, 225)
+        )
+        bg_image.paste(user_avatar, ((520, 112)))
+        draw = ImageDraw.Draw(bg_image)
+        draw.text(
+            (55, 88),
+            interaction.author.name,
+            font=ImageFont.truetype("data/profile_font.ttf", 42),
+            fill=(189, 201, 193),
+        )
+        draw.text(
+            (40, 200),
+            f"Pokédollars : {data[3]}",
+            font=ImageFont.truetype("data/profile_font.ttf", 42),
+            fill=(189, 201, 193),
+        )
+        draw.text(
+            (40, 250),
+            f"Star Fragements : {data[4]}",
+            font=ImageFont.truetype("data/profile_font.ttf", 42),
+            fill=(189, 201, 193),
+        )
+        bg_image.save(f"trash/{interaction.author.id}.png")
+        embed = Embed(color=self.bot.color)
+        embed.set_image(file=File(f"trash/{interaction.author.id}.png"))
+        embed.set_author(name=user.name, icon_url=user.display_avatar)
+        await interaction.edit_original_message(embed=embed)
 
     @command(
         name="pokedex",
