@@ -40,10 +40,7 @@ class Start(Cog, name="Startup Command"):
         self.emoji = "<:trainer:937618424169914398>"
         self.bot = bot
 
-    @slash_command(
-        name="start",
-        description="Begin your pokemon journey!"
-    )
+    @slash_command(name="start", description="Begin your pokemon journey!")
     async def start_slash_command(
         self, interaction: ApplicationCommandInteraction
     ) -> Optional[Message]:
@@ -108,7 +105,7 @@ class SelectPokemon(View):
                 f"<@!{user_id}> you didn't respond on time !"
             )
         await self.bot.user_database.insert_user_into_database(
-            user_id, "m", self.bot.pokemon_dict[pokemon.lower()]["id"]
+            user_id, self.bot.pokemon_dict[pokemon.lower()]["id"]
         )
         await res.message.edit(
             embed=Embed(
