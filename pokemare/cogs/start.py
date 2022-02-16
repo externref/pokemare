@@ -16,6 +16,7 @@ from disnake.interactions import ApplicationCommandInteraction, MessageInteracti
 
 
 from .. import PokeMare
+from ..user import User
 
 DESC = """
 <:moonball:918870698997452831> Welcome to the world of **PokéMare**, and the start of your Pokémon Journey!
@@ -48,6 +49,8 @@ class Start(Cog, name="Startup Command"):
             str(interaction.author.id)
         )
         if data:
+            user = User()
+            user.load_from_data(data)
             return await interaction.response.send_message(
                 embed=Embed(
                     title="Professor Oak....",
@@ -105,7 +108,7 @@ class SelectPokemon(View):
                 f"<@!{user_id}> you didn't respond on time !"
             )
         await self.bot.user_database.insert_user_into_database(
-            user_id, self.bot.pokemon_dict[pokemon.lower()]["id"]
+            user_id, "Temp Name", self.bot.pokemon_dict[pokemon.lower()]["id"]
         )
         await res.message.edit(
             embed=Embed(
