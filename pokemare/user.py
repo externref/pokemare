@@ -4,7 +4,6 @@ from pokemare.mail import MailBox
 class User(object):
     def __init__(self, bot):
         self.bot = bot
-        self.author_name = ""
         self.identifier = 0
         self.name = ""
         self.starter_id = 0
@@ -18,14 +17,13 @@ class User(object):
 
     def load_from_data(self, data):
         self.identifier = data[0]
-        self.author_name = data[1]
-        self.name = data[2]
-        self.starter_id = data[3]
-        self.badges = data[4]
-        self.pokedollars = data[5]
-        self.stars = data[6]
+        self.name = data[1]
+        self.starter_id = data[2]
+        self.badges = data[3]
+        self.pokedollars = data[4]
+        self.stars = data[5]
         self.mailbox = MailBox()
-        self.mailbox.from_string(data[7])
+        self.mailbox.from_string(data[6])
 
     async def refresh_data(self):
         data = await self.bot.user_database.get_user_information(self.identifier)
