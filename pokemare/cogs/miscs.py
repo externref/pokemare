@@ -38,7 +38,7 @@ class Miscs(Cog, name="Misc Commands"):
         #self.temporary_user_dict_for_mail = mailbox_dict
 
     @slash_command(
-        name="mail", description="Send and receive mail in your personal mailbox.", guild_ids=[303282588901179394]
+        name="mail", description="Send and receive mail in your personal mailbox."
     )
     async def mail_command(self, inter: ApplicationCommandInteraction):
         user = await self.bot.user_database.get_user(inter.author.id)
