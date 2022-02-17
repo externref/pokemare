@@ -18,7 +18,7 @@ from disnake.interactions import ApplicationCommandInteraction
 from .. import PokeMare
 from ..songs import SongList
 from ..trivia import TriviaList, TriviaButtons
-from ..mail import MailBox, Mail, MailHomeEmbed, MailHomeView, mailbox_dict
+from ..mail import mailbox_dict, MailBoxUIManager
 
 
 class Miscs(Cog, name="Misc Commands"):
@@ -38,7 +38,7 @@ class Miscs(Cog, name="Misc Commands"):
         self.temporary_user_dict_for_mail = mailbox_dict
 
     @slash_command(
-        name="mail", description="Send and receive mail in your personal mailbox."
+        name="mail", description="Send and receive mail in your personal mailbox.", guild_ids=[303282588901179394]
     )
     async def mail_command(self, inter: ApplicationCommandInteraction):
         if inter.author.id in self.temporary_user_dict_for_mail:
@@ -49,9 +49,8 @@ class Miscs(Cog, name="Misc Commands"):
             )
             return
         mailbox.update_fields()
-        embed = MailHomeEmbed(mailbox, inter.author)
-        view = MailHomeView(mailbox, inter.author, self.bot)
-        await inter.send(embed=embed, view=view)
+        mailbox_manager = MailBoxUIManager(self.bot, mailbox)
+        await mailbox_manager.start(inter)
 
     @slash_command(
         name="trivia", description="Take the trivia quiz and earn Pokedollars!"
