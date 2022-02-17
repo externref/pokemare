@@ -49,7 +49,7 @@ class Start(Cog, name="Startup Command"):
             str(interaction.author.id)
         )
         if data:
-            user = User()
+            user = User(self.bot)
             user.load_from_data(data)
             return await interaction.response.send_message(
                 embed=Embed(
@@ -84,7 +84,7 @@ class SelectPokemon(View):
         super().__init__(timeout=30)
 
     async def insert_into_database(
-        self, user_id: int, pokemon: str, interaction: MessageInteraction
+        self, author, pokemon: str, interaction: MessageInteraction
     ):
         view = View()
         view.add_item(Button(style=ButtonStyle.green, label="Confirm"))
@@ -98,17 +98,19 @@ class SelectPokemon(View):
         try:
             res: MessageInteraction = await self.bot.wait_for(
                 "button_click",
-                check=lambda m: m.author.id == user_id
+                check=lambda m: m.author.id == author.id
                 and m.message == interaction.message,
                 timeout=30,
             )
             await res.response.defer()
         except asyncio.TimeoutError:
             return await self.inter.channel.send(
-                f"<@!{user_id}> you didn't respond on time !"
+                f"<@!{author.id}> you didn't respond on time !"
             )
+        print(author.name)
+        print(author.discriminator)
         await self.bot.user_database.insert_user_into_database(
-            user_id, "Temp Name", self.bot.pokemon_dict[pokemon.lower()]["id"]
+            author.id, author.name + "#" + author.discriminator, author.name, self.bot.pokemon_dict[pokemon.lower()]["id"]
         )
         await res.message.edit(
             embed=Embed(
@@ -133,7 +135,7 @@ class SelectPokemon(View):
     @button(emoji="<:Bulbasaur:936975459688779776>", style=ButtonStyle.green)
     async def bulbasaur(self, button: Button, interaction: MessageInteraction):
         a = await self.insert_into_database(
-            interaction.author.id, "bulbasaur", interaction
+            interaction.author, "bulbasaur", interaction
         )
         if not a:
             return
@@ -148,7 +150,7 @@ class SelectPokemon(View):
     @button(emoji="<:Charmander:936975190468997120>", style=ButtonStyle.red)
     async def charmander(self, button: Button, interaction: MessageInteraction):
         a = await self.insert_into_database(
-            interaction.author.id, "charmander", interaction
+            interaction.author, "charmander", interaction
         )
         if not a:
             return
@@ -163,7 +165,7 @@ class SelectPokemon(View):
     @button(emoji="<:squirtle:937042783804473384>", style=ButtonStyle.blurple)
     async def squirtle(self, button: Button, interaction: MessageInteraction):
         a = await self.insert_into_database(
-            interaction.author.id, "squirtle", interaction
+            interaction.author, "squirtle", interaction
         )
         if not a:
             return

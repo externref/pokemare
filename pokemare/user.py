@@ -1,21 +1,55 @@
+from pokemare.mail import MailBox
+
+
 class User(object):
-    def __init__(self):
+    def __init__(self, bot):
+        self.bot = bot
+        self.author_name = ""
         self.identifier = 0
         self.name = ""
         self.starter_id = 0
         self.badges = []
         self.pokedollars = 0
         self.stars = 0
+        self.mailbox = MailBox()
 
     def __copy__(self):
-        user_copy = type(self)(self.identifier, self.name)
-        user_copy.starter_id = self.starter_id
-        user_copy.badges = self.badges
-        user_copy.pokedollars = self.pokedollars
-        user_copy.stars = self.stars
-        return user_copy
+        pass
 
     def load_from_data(self, data):
-        self.identifier = data[1]
+        self.identifier = data[0]
+        self.author_name = data[1]
         self.name = data[2]
         self.starter_id = data[3]
+        self.badges = data[4]
+        self.pokedollars = data[5]
+        self.stars = data[6]
+        self.mailbox = MailBox()
+        self.mailbox.from_string(data[7])
+
+    async def refresh_data(self):
+        data = await self.bot.user_database.get_user_information(self.identifier)
+        if data:
+            self.load_from_data(data)
+
+    async def delete_mail(self, mail):
+        self.mailbox.delete_mail(mail)
+        await self.bot.user_database.update_user_mailbox(self.identifier, self.mailbox.to_string())
+
+    async def claim_all_mail_attachments(self, mail):
+        self.mailbox.claim_mail_attachments(mail)
+        await self.bot.user_database.update_user_mailbox(self.identifier, self.mailbox.to_string())
+
+    async def mark_mail_as_read(self, mail):
+        self.mailbox.mark_mail_as_read(mail)
+        await self.bot.user_database.update_user_mailbox(self.identifier, self.mailbox.to_string())
+
+    async def update_mailbox_fields(self):
+        self.mailbox.update_fields()
+        await self.bot.user_database.update_user_mailbox(self.identifier, self.mailbox.to_string())
+
+    async def receive_mail(self, mail):
+        self.mailbox.add_mail(mail)
+        await self.bot.user_database.update_user_mailbox(self.identifier, self.mailbox.to_string())
+
+

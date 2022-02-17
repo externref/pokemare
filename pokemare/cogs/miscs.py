@@ -18,7 +18,7 @@ from disnake.interactions import ApplicationCommandInteraction
 from .. import PokeMare
 from ..songs import SongList
 from ..trivia import TriviaList, TriviaButtons
-from ..mail import mailbox_dict, MailBoxUIManager
+from ..mail import MailBoxUIManager
 
 
 class Miscs(Cog, name="Misc Commands"):
@@ -35,22 +35,20 @@ class Miscs(Cog, name="Misc Commands"):
         self.trivia_list.load_from_json()
 
         # TODO: Remove temporary mail testing stuff once we have proper user classes and database and shit
-        self.temporary_user_dict_for_mail = mailbox_dict
+        #self.temporary_user_dict_for_mail = mailbox_dict
 
     @slash_command(
         name="mail", description="Send and receive mail in your personal mailbox.", guild_ids=[303282588901179394]
     )
     async def mail_command(self, inter: ApplicationCommandInteraction):
-        if inter.author.id in self.temporary_user_dict_for_mail:
-            mailbox = self.temporary_user_dict_for_mail[inter.author.id]
+        user = await self.bot.user_database.get_user(inter.author.id)
+        if user:
+            mailbox = user.mailbox
+            mailbox.update_fields()
+            mailbox_manager = MailBoxUIManager(self.bot, user, mailbox)
+            await mailbox_manager.start(inter)
         else:
-            await inter.send(
-                "Sorry, mail is in beta right now and only supports a few users for testing."
-            )
-            return
-        mailbox.update_fields()
-        mailbox_manager = MailBoxUIManager(self.bot, mailbox)
-        await mailbox_manager.start(inter)
+            await inter.send("You have not started the bot yet! Please do `/start`!")
 
     @slash_command(
         name="trivia", description="Take the trivia quiz and earn Pokedollars!"
