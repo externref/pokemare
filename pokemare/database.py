@@ -20,6 +20,7 @@ class UserInfoDatabase:
             CREATE TABLE IF NOT EXISTS users
             (
                 user_id TEXT,
+                author_name TEXT,
                 name TEXT,
                 starter_id TEXT,
                 badges TEXT,
@@ -31,9 +32,13 @@ class UserInfoDatabase:
         )
         await self.user_database.commit()
 
-    async def get_user(self, user_id):
+    async def get_user(self, id_or_author):
         user = User(self.bot)
-        data = await self.get_user_information(user_id)
+        data = await self.get_user_information(id_or_author)
+        if data:
+            user.load_from_data(data)
+            return user
+        data = await self.get_user_data_by_author(id_or_author)
         if data:
             user.load_from_data(data)
             return user
@@ -50,15 +55,26 @@ class UserInfoDatabase:
             )
             return await cursor.fetchone()
 
+    async def get_user_data_by_author(self, author_name):
+        async with self.user_database.cursor() as cursor:
+            await cursor.execute(
+                """
+                SELECT * FROM users
+                WHERE author_name = ?
+                """,
+                (author_name,),
+            )
+            return await cursor.fetchone()
+
     async def insert_user_into_database(self, user_id: str, author_name: str, name: str, starter_id: str) -> None:
         async with self.user_database.cursor() as cursor:
             await cursor.execute(
                 """
                 INSERT INTO users
-                ( user_id, name, starter_id, badges, pokedollars, stars, mailbox )
+                ( user_id, author_name, name, starter_id, badges, pokedollars, stars, mailbox )
                 VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (user_id, name, starter_id, "", "2500", "0", MailBox(int(user_id)).to_string()),
+                (user_id, author_name, name, starter_id, "", "2500", "0", MailBox(int(user_id)).to_string()),
             )
             await self.user_database.commit()
 

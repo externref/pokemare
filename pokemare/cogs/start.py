@@ -107,6 +107,8 @@ class SelectPokemon(View):
             return await self.inter.channel.send(
                 f"<@!{author.id}> you didn't respond on time !"
             )
+        print(author.name)
+        print(author.discriminator)
         await self.bot.user_database.insert_user_into_database(
             author.id, author.name + "#" + author.discriminator, author.name, self.bot.pokemon_dict[pokemon.lower()]["id"]
         )

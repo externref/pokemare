@@ -630,9 +630,8 @@ class SendModal(disnake.ui.Modal):
         subject = inter.text_values["subject"]
         message = inter.text_values["message"]
         to_user = await self.bot.user_database.get_user(to)
-        to_author_name = self.bot.get_user(to_user.identifier)
         if to_user:
-            mail = Mail(self.user.identifier, to_author_name, to_user.identifier, subject, message)
+            mail = Mail(self.user.identifier, self.user.author_name, to_user.identifier, subject, message)
             await to_user.receive_mail(mail)
             discord_member = self.bot.get_user(to)
             try:
@@ -643,7 +642,7 @@ class SendModal(disnake.ui.Modal):
                 pass
             for key, value in inter.text_values.items():
                 if key == "to":
-                    new_value = to_author_name
+                    new_value = to_user.author_name
                 else:
                     new_value = value[:1024]
                 embed.add_field(
