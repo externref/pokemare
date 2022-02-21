@@ -157,12 +157,23 @@ class Miscs(Cog, name="Misc Commands"):
             await inter.send("No song found with title '" + song_name.title() + "'.")
 
     @command(
-        name="guessthepokemon",
-        aliases=["gtp"],
-        description="Guess the pokemon from the shadow in the image for rewards!",
+        name="ranked_whos_that_pokemon",
+        aliases=["rwtp"],
+        description="Ranked version: Guess the pokemon from the shadow in the image for rewards!",
     )
-    @cooldown(1, 30, BucketType.user)
-    async def guess_the_pokemon(self, ctx: Context):
+    @cooldown(1, 1800, BucketType.user)
+    async def whos_that_pokemon_ranked(self, ctx: Context):
+        await self.whos_that_pokemon(ctx, True)
+
+    @command(
+        name="whos_that_pokemon",
+        aliases=["wtp"],
+        description="Unranked version: Guess the pokemon from the shadow in the image for rewards!",
+    )
+    async def whos_that_pokemon_unranked(self, ctx: Context):
+        await self.whos_that_pokemon(ctx, False)
+
+    async def whos_that_pokemon(self, ctx: Context, ranked=False):
         """Guess for reward"""
         pokemon_id = random.randint(1, 152)
         pokemon_name = (
@@ -190,9 +201,15 @@ class Miscs(Cog, name="Misc Commands"):
                 and m.content.lower() == pokemon_name,
                 timeout=60,
             )
+            description = f"Congratulations, you guessed the correct Pokemon: {pokemon_name.upper()}!"
+            if ranked:
+                # TODO: give user PokeDollars
+                description += "\n\nWell done " + ctx.author.name + ", you received ?? <:pokedollar:941929762912342027> PokéDollars!"
+            else:
+                description += "\n\nWell done " + ctx.author.name + ", try out ranked mode to gain rewards using `.rwtp`!"
             embed = Embed(
                 color=Color.green(),
-                description=f"Congratulations, you guessed the correct Pokemon: {pokemon_name.upper()}!",
+                description=description,
             )
             embed.set_image(url="attachment://pokemon_guess.png")
             file = File(
@@ -212,7 +229,12 @@ class Miscs(Cog, name="Misc Commands"):
             )
             await ctx.send(embed=embed, file=file)
 
-    @guess_the_pokemon.error
+    @whos_that_pokemon_ranked.error
+    async def guess_the_pokemon_error(self, ctx: Context, error):
+        if isinstance(error, CommandOnCooldown):
+            await ctx.reply("'Guess the Pokemon' not available. " + str(error) + ".")
+
+    @whos_that_pokemon_unranked.error
     async def guess_the_pokemon_error(self, ctx: Context, error):
         if isinstance(error, CommandOnCooldown):
             await ctx.reply("'Guess the Pokemon' not available. " + str(error) + ".")
