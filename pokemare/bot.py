@@ -32,11 +32,11 @@ class PokeMare(Bot):
     def load_extensions_from(self, path: str) -> None:
         for file in os.listdir(path):
             if not file.startswith("_") and file.endswith(".py"):
-                self.load_extension(path.replace('/','.')+'.'+file[:-3])
+                self.load_extension(path.replace("/", ".") + "." + file[:-3])
 
     async def on_ready(self) -> None:
         await self.prefix_database.connect()
-        print(self.user , "Is Online.")
+        print(self.user, "Is Online.")
 
     async def getch_user(self, id: int) -> None:
         return self.get_user(id) or await self.fetch_user(id)
