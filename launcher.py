@@ -4,4 +4,4 @@ from os import getenv
 
 if __name__ == "__main__":
     load_dotenv()
-    PokeMare(getenv("BOT_TOKEN")).run()
+    PokeMare().run(getenv("BOT_TOKEN"))
