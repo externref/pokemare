@@ -39,9 +39,22 @@ class PrefixHandler:
                 prefix = row[1]
         return when_mentioned_or(prefix)(bot, message)
 
+    async def has_custom_prefix(self, guild_id: int) -> bool:
+        async with self.database.cursor() as cursor:
+            await cursor.execute(
+                """
+                SELECT * FROM prefixes
+                WHERE guild_id = ?
+                """,
+                (str(guild_id),),
+            )
+            row = await cursor.fetchone()
+            if row:
+                return True
+
     async def set_prefix(self, message: Message | Context, prefix: str) -> None:
         async with self.database.cursor() as cursor:
-            exists: bool = await self.get_prefix(None, message)
+            exists = await self.has_custom_prefix(message.guild.id)
             if exists:
                 await cursor.execute(
                     """
@@ -55,9 +68,9 @@ class PrefixHandler:
                 await cursor.execute(
                     """
                     INSERT INTO prefixes
-                    guild_id , prefix
+                    ( guild_id , prefix )
                     VALUES (?, ?)
                     """,
-                    (str(message.guild.id, prefix)),
+                    (str(message.guild.id), prefix),
                 )
         await self.database.commit()
