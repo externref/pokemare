@@ -15,7 +15,7 @@ class PrefixHandler:
             await cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS prefixes
-                guild_id TEXT, prefix TEXT
+                ( guild_id TEXT, prefix TEXT )
                 """
             )
             await self.database.commit()
