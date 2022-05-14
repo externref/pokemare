@@ -1,0 +1,4 @@
+disnake
+disnake-jishaku
+python-dotenv
+aiosqlite
