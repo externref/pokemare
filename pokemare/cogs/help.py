@@ -51,7 +51,7 @@ class HelpCommand(commands.Cog):
         view.add_item(
             disnake.ui.Button(
                 style=disnake.ButtonStyle.link,
-                label="Invite",
+                label="Support Server",
                 emoji=self.bot.get_emoji(866894907741831218),
                 url="https://discord.gg/Km8WwHBSrg",
             ),

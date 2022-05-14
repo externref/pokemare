@@ -52,7 +52,8 @@ class Games(commands.Cog):
             msg: disnake.Message = await self.bot.wait_for(
                 "message",
                 check=lambda m: m.author == interaction.user
-                and m.channel == interaction.channel,
+                and m.channel == interaction.channel
+                and m.content.lower() in (str(p_id), pokemon_name.lower()),
                 timeout=30,
             )
         except:
