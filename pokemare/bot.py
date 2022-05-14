@@ -24,9 +24,11 @@ class PokeMare(commands.Bot):
             intents=intents,
             strip_after_prefix=True,
             case_insensitive=True,
+            help_command=None
         )
         self.gtp_db = GuessThePokemonDatabase()
         self.load_extension("jishaku")
+        self.get_cog("Jishaku").ignored = True
         self.load_extensions("pokemare/cogs")
         with open("data/pokemons.json", "r") as file:
             self.pokemon_dict: dict = json.load(file)
