@@ -1,45 +1,62 @@
 from __future__ import annotations
 
-import os
+import datetime
 import json
-from datetime import datetime
+import os
 
-from discord.flags import Intents
-from discord.message import Message
-from discord.ext.commands.bot import Bot
-from discord.ext.commands.context import Context
+import disnake
+import dotenv
+from disnake.ext import commands
 
-from .handlers import PrefixHandler
+from database import GuessThePokemonDatabase
 
 
-class PokeMare(Bot):
+class PokeMare(commands.Bot):
+    boot_time: datetime.datetime
+
     def __init__(self) -> None:
-        self.prefix_database = PrefixHandler()
-        self.boot_time = datetime.now()
-        self.color = 0x04356D
-        self.support_server_invite_url = os.getenv("SUPPORT_SERVER")
-        intents = Intents.all()
+        intents = disnake.Intents.default()
+        intents.members = True
+        intents.message_content = True
         super().__init__(
-            command_prefix=self.prefix_database.get_prefix,
+            command_prefix="p!",
+            #test_guilds=[],
             intents=intents,
+            strip_after_prefix=True,
             case_insensitive=True,
         )
+        self.gtp_db = GuessThePokemonDatabase()
         self.load_extension("jishaku")
-        self.load_extensions_from("pokemare/plugins")
+        self.load_extensions("pokemare/cogs")
         with open("data/pokemons.json", "r") as file:
-            self.pokemon_dict = json.load(file)
-
-    def load_extensions_from(self, path: str) -> None:
-        for file in os.listdir(path):
-            if not file.startswith("_") and file.endswith(".py"):
-                self.load_extension(path.replace("/", ".") + "." + file[:-3])
+            self.pokemon_dict: dict = json.load(file)
 
     async def on_ready(self) -> None:
-        await self.prefix_database.connect()
-        print(self.user, "Is Online.")
+        print("Bot is online!")
+        await self.setup()
 
-    async def getch_user(self, id: int) -> None:
-        return self.get_user(id) or await self.fetch_user(id)
+    async def setup(self) -> None:
+        self.boot_time = datetime.datetime.now()
+        await self.gtp_db.setup(self)
+        await self.wait_until_ready()
+        await self.change_presence(
+            activity=disnake.Activity(
+                type=disnake.ActivityType.listening, name="/help"
+            ),
+            status=disnake.Status.idle,
+        )
 
-    async def set_prefix_for(self, message: Message | Context, prefix: str) -> None:
-        await self.prefix_database.set_prefix(message, prefix)
+    async def get_prefix(self, message: disnake.Message) -> list[str]:
+        return commands.when_mentioned_or("p!")(self, message)
+
+    def run(self) -> None:
+        dotenv.load_dotenv()
+        super().run(os.getenv("TOKEN"))
+
+    @property
+    def uptime(self) -> datetime:
+        return datetime.datetime.now() - self.boot_time
+
+    @property
+    def invite_url(self) -> str:
+        return f"https://discord.com/api/oauth2/authorize?client_id={self.user.id}&permissions=378025593921&scope=bot%20applications.commands"
