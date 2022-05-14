@@ -1,6 +1,7 @@
 users.db
 .replit
 pokemare_old/
+*db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
