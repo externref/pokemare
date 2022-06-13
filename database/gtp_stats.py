@@ -1,25 +1,50 @@
 from __future__ import annotations
 
-import aiosqlite
+import aiomysql
 import disnake
 from disnake.ext import commands
 
 
 class GuessThePokemonDatabase:
     bot: commands.Bot
-    connection: aiosqlite.Connection
+    database_pool: aiomysql.Pool
+
+    async def exec_write_operation(self, sql: str, values: tuple = None) -> None:
+
+        async with self.database_pool.acquire() as conn:
+            conn: aiomysql.Connection
+            async with conn.cursor() as cursor:
+                cursor: aiomysql.Cursor
+                await cursor.execute(sql, values)
+            await conn.commit()
+
+    async def exec_fetchall(self, sql: str, values: tuple) -> list[tuple]:
+        async with self.database_pool.acquire() as conn:
+            conn: aiomysql.Connection
+            async with conn.cursor() as cursor:
+                cursor: aiomysql.Cursor
+                await cursor.execute(sql, values)
+                return await cursor.fetchall()
+
+    async def exec_fetchone(self, sql: str, values: tuple) -> tuple:
+        async with self.database_pool.acquire() as conn:
+            conn: aiomysql.Connection
+            async with conn.cursor() as cursor:
+                cursor: aiomysql.Cursor
+                await cursor.execute(sql, values)
+                return await cursor.fetchone()
 
     async def setup(self, bot: commands.Bot) -> None:
-        connection = await aiosqlite.connect("gtpdatabase.db")
-        await connection.execute(
-            """
-            CREATE TABLE IF NOT EXISTS guesses
-            ( user_id BIGINT, guild_id BIGINT, guesses INT ) ;
-            """
-        )
-        await connection.commit()
+
+        self.database_pool = bot.database_pool
         self.bot = bot
-        self.connection = connection
+
+        await self.exec_write_operation(
+            """
+        CREATE TABLE IF NOT EXISTS guesses
+        ( user_id BIGINT, guild_id BIGINT, guesses INT ) ;
+        """
+        )
 
     async def local_leaderboard(self, guild: disnake.Guild) -> list[tuple]:
         cursor = await self.connection.cursor()
@@ -27,7 +52,7 @@ class GuessThePokemonDatabase:
             """
             SELECT user_id, guesses FROM guesses
             ORDER BY guesses DESC
-            WHERE guild_id = ?
+            WHERE guild_id = %s
             """,
             (guild.id,),
         )
@@ -40,14 +65,13 @@ class GuessThePokemonDatabase:
         return users
 
     async def global_leaderboard(self) -> list[tuple]:
-        cursor = await self.connection.cursor()
-        await cursor.execute(
+        raw = await self.exec_fetchall(
             """
             SELECT user_id, guesses FROM guesses
             ORDER BY guesses DESC
             """
         )
-        raw = await cursor.fetchall()
+
         users = [
             (self.bot.get_user(data[0]), data[1])
             for data in raw
@@ -56,38 +80,34 @@ class GuessThePokemonDatabase:
         return users
 
     async def get_data_for_member(self, member: disnake.Member):
-        cursor = await self.connection.cursor()
-        await cursor.execute(
+        data = await self.exec_fetchall(
             """
             SELECT * FROM guesses
-            WHERE user_id = ? AND guild_id = ?
+            WHERE user_id = %s AND guild_id = %s
             """,
             (member.id, member.guild.id),
         )
-        return await cursor.fetchall()
+        return data
 
     async def add_guess(self, member: disnake.Member):
-        cursor = await self.connection.cursor()
         values = (
             member.id,
             member.guild.id,
         )
         if await self.get_data_for_member(member):
-            await cursor.execute(
+            await self.exec_write_operation(
                 """
                 UPDATE guesses
                 SET guesses = guesses + 1
-                WHERE user_id = ? AND guild_id = ?
+                WHERE user_id = %s AND guild_id = %s
                 """,
                 values,
             )
         else:
-            await cursor.execute(
+            await self.exec_write_operation(
                 """
                 INSERT INTO guesses
-                VALUES ( ?, ?, 1 )
+                VALUES ( %s, %s, 1 )
                 """,
                 values,
             )
-
-        await self.connection.commit()
