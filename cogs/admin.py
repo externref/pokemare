@@ -6,7 +6,7 @@ from disnake.ext import commands
 from core.bot import PokeMare
 
 
-class ErrorHandler(commands.Cog):
+class Admin(commands.Cog):
     def __init__(self, bot: PokeMare) -> None:
         self.bot = bot
         self.ignored = True
@@ -18,7 +18,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await inter.send(
                 embed=disnake.Embed(
-                    description=f"You gotta wait for `{error.retry_after}` seconds to use this command again.",
+                    description=f"You gotta wait for `{round(error.retry_after,2)}` seconds to use this command again.",
                     color=disnake.Color.red(),
                 )
             )
@@ -26,5 +26,5 @@ class ErrorHandler(commands.Cog):
             raise error
 
 
-def load(bot: PokeMare):
-    bot.add_cog(ErrorHandler(bot))
+def setup(bot: PokeMare):
+    bot.add_cog(Admin(bot))
