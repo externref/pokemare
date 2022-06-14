@@ -9,7 +9,8 @@ import aiohttp
 import aiomysql
 import disnake
 import dotenv
-from database import GuessThePokemonDatabase
+from database.gtp_stats import GuessThePokemonDatabase
+from database.user import Currency
 
 
 from disnake.ext import commands
@@ -31,6 +32,7 @@ class PokeMare(commands.Bot):
             help_command=None,
         )
         self.gtp_db = GuessThePokemonDatabase()
+        self.currency_db = Currency()
         self.load_extension("jishaku")
         self.get_cog("Jishaku").ignored = True
         self.load_extensions("cogs")
@@ -53,6 +55,7 @@ class PokeMare(commands.Bot):
         )  # getting configs from the .env file and setting up the database
         self.boot_time = datetime.datetime.now()
         await self.gtp_db.setup(self)
+        await self.currency_db.setup(self)
         self.client_session = aiohttp.ClientSession()
         await self.wait_until_ready()
         await self.change_presence(

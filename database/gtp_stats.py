@@ -18,7 +18,7 @@ class GuessThePokemonDatabase:
                 await cursor.execute(sql, values)
             await conn.commit()
 
-    async def exec_fetchall(self, sql: str, values: tuple) -> list[tuple]:
+    async def exec_fetchall(self, sql: str, values: tuple = None) -> list[tuple]:
         async with self.database_pool.acquire() as conn:
             conn: aiomysql.Connection
             async with conn.cursor() as cursor:
@@ -26,7 +26,7 @@ class GuessThePokemonDatabase:
                 await cursor.execute(sql, values)
                 return await cursor.fetchall()
 
-    async def exec_fetchone(self, sql: str, values: tuple) -> tuple:
+    async def exec_fetchone(self, sql: str, values: tuple = None) -> tuple:
         async with self.database_pool.acquire() as conn:
             conn: aiomysql.Connection
             async with conn.cursor() as cursor:
@@ -41,9 +41,9 @@ class GuessThePokemonDatabase:
 
         await self.exec_write_operation(
             """
-        CREATE TABLE IF NOT EXISTS guesses
-        ( user_id BIGINT, guild_id BIGINT, guesses INT ) ;
-        """
+            CREATE TABLE IF NOT EXISTS guesses
+            ( user_id BIGINT, guild_id BIGINT, guesses INT ) ;
+            """
         )
 
     async def local_leaderboard(self, guild: disnake.Guild) -> list[tuple]:
@@ -58,24 +58,25 @@ class GuessThePokemonDatabase:
         )
         raw = await cursor.fetchall()
         users = [
-            (self.bot.get_user(id), guesses)
-            for id, guesses in raw
-            if self.bot.get_user(id)
+            (self.bot.get_user(id_), guesses)
+            for id_, guesses in raw
+            if self.bot.get_user(id_)
         ]
         return users
 
     async def global_leaderboard(self) -> list[tuple]:
         raw = await self.exec_fetchall(
             """
-            SELECT user_id, guesses FROM guesses
-            ORDER BY guesses DESC
+            SELECT user_id, SUM(guesses) FROM guesses
+            GROUP BY user_id
+            ORDER BY SUM(guesses) DESC
             """
         )
-
+        # list(raw).sort(key= lambda t: t[1])
         users = [
             (self.bot.get_user(data[0]), data[1])
             for data in raw
-            if self.bot.get_user(data[0])
+            if self.bot.get_user(data[0] or await self.bot.fetch_user(data[0]))
         ]
         return users
 
@@ -88,6 +89,12 @@ class GuessThePokemonDatabase:
             (member.id, member.guild.id),
         )
         return data
+
+    async def get_guesses_for_user(self, user: disnake.User):
+        data = await self.exec_fetchone(
+            "SELECT SUM(guesses) FROM guesses WHERE user_id = %s", (user.id,)
+        )
+        return data[0] if data else 0
 
     async def add_guess(self, member: disnake.Member):
         values = (
