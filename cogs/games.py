@@ -63,10 +63,14 @@ class Games(commands.Cog):
             revealed_embed.set_footer(text="Better luck new time!")
             revealed_embed.title = "Oh no, wrong guess."
             await interaction.edit_original_message(embed=revealed_embed)
-
+        reward = random.randint(30, 50)
+        await self.bot.currency_db.add_coins_to(interaction.user.id, reward)
         await self.bot.gtp_db.add_guess(interaction.author)
         revealed_embed.color = disnake.Color.green()
-        revealed_embed.set_footer(text="Use /leaderboard me to see your stats")
+        revealed_embed.set_footer(
+            text=f"{reward} dollars have been added to your account.",
+            icon_url="https://cdn.discordapp.com/emojis/941929762912342027.webp?size=96",
+        )
         revealed_embed.title = "Correct!"
         await interaction.edit_original_message(embed=revealed_embed)
 
