@@ -17,8 +17,14 @@ class Leaderboard(commands.Cog):
     ) -> None:
         if lb_type == "guess the pokemon global":
             data = (await self.bot.gtp_db.global_leaderboard())[:10]
+            pos = 0
+            for u in data:
+                pos += 1
+                if u[0] == interaction.user:
+                    break
             embed = disnake.Embed(
-                description="Showing top 10 users.", color=disnake.Color.purple()
+                description=f"Showing top 10 users.\n\nYou are ranked {pos}",
+                color=disnake.Color.purple(),
             ).set_author(
                 name="GLOBAL LEADERBOARD", icon_url=self.bot.user.display_avatar
             )
