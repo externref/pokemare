@@ -15,28 +15,45 @@ class Leaderboard(commands.Cog):
     async def lb_cmd(
         self, interaction: disnake.AppCommandInteraction, lb_type: str
     ) -> None:
+        badges = {
+            1: self.bot.get_emoji(986111353083293696),
+            2: self.bot.get_emoji(986111367452971008),
+            3: self.bot.get_emoji(986111389376589844),
+        }
         if lb_type == "guess the pokemon global":
-            data = (await self.bot.gtp_db.global_leaderboard())[:10]
+            data_ = await self.bot.gtp_db.global_leaderboard()
+            data = data_[:10]
             pos = 0
-            for u in data:
+            for u in data_:
                 pos += 1
                 if u[0] == interaction.user:
                     break
-            embed = disnake.Embed(
-                description=f"Showing top 10 users.\n\nYou are ranked {pos}",
-                color=disnake.Color.purple(),
-            ).set_author(
-                name="GLOBAL LEADERBOARD", icon_url=self.bot.user.display_avatar
+            embed = (
+                disnake.Embed(
+                    description=f"Displaying top 10 global trainers.\n\nYou are ranked `#{pos}` with `{await self.bot.gtp_db.get_guesses_for_user(interaction.user)}` correct gusses.",
+                    color=disnake.Color.purple(),
+                )
+                .set_author(
+                    name="GLOBAL LEADERBOARD", icon_url=self.bot.user.display_avatar
+                )
+                .set_thumbnail(
+                    url=badges.get(pos, self.bot.get_emoji(986110723597950996)).url
+                )
+                .set_footer(text="Use /profile to see your stats.")
             )
             embed.add_field(
-                name="User",
+                name=f"{self.bot.get_emoji(937618424169914398)} Trainers",
                 value="\n".join(
-                    f"{str(i[0])}. `{i[1][0].__str__()}`"
+                    f"{badges.get(i[0],self.bot.get_emoji(986110723597950996))}. `{i[1][0].__str__()}`"
                     for i in enumerate(data, start=1)
                 ),
             )
+
+            def make_string(g: int) -> None:
+                return "`💠 " + ("0" * len(str(10000 // g))) + str(g) + "`"
+
             embed.add_field(
-                name="Guesses", value="\n".join(i[1].__str__() for i in data)
+                name="❔ Guesses", value="\n".join(make_string(i[1]) for i in data)
             )
 
         await interaction.send(embed=embed)
