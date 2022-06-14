@@ -79,6 +79,6 @@ class PokeMare(commands.Bot):
     @property
     def invite_url(self) -> str:
         return (
-            "https://discord.com/api/oauth2/authorize?client_id={self.user.id}"
+            f"https://discord.com/api/oauth2/authorize?client_id={self.user.id}"
             "&permissions=378025593921&scope=bot%20applications.commands"
         )
