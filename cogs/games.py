@@ -4,6 +4,7 @@ import random
 
 import disnake
 from disnake.ext import commands
+import datetime
 
 from core.bot import PokeMare
 
@@ -28,7 +29,7 @@ class Games(commands.Cog):
         super().__init__()
 
     @commands.slash_command(
-        name="guess_the_pokemon",
+        name="whos_that_pokemon",
         description="Guess the correct pokemon to reach the leaderboard!",
     )
     @commands.cooldown(1, 20, type=commands.BucketType.user)
@@ -39,15 +40,23 @@ class Games(commands.Cog):
         pokemon_name = pokemon.get("name")
         pokemon_info = pokemon.get("description")
 
-        hidden_embed = disnake.Embed(
-            color=disnake.Color.yellow(),
-            description="Respond with the name or the ID of the pokemon",
-        ).set_author(name="Guess the Pokemon")
+        hidden_embed = (
+            disnake.Embed(
+                color=disnake.Color.yellow(),
+                description=(
+                    f"> {self.bot.get_emoji(866894894047166484)} Respond with the pokemon name.\n"
+                    f"> `🎁` Rewards: `30-50 Pokédollars`, +1 wtp point.\n"
+                    f"> `⏰` Respond <{disnake.utils.format_dt(datetime.datetime.now()+datetime.timedelta(seconds=30))}>"
+                ),
+            )
+            .set_author(name="Who's that Pokemon!")
+            .set_footer(text="Timer may not show up on phone. It's 30 seconds.")
+        )
         hidden_embed.set_image(url=gtp.hidden_image)
 
         await interaction.send(embed=hidden_embed)
         revealed_embed = disnake.Embed(
-            description=f"The pokemon was: ||{pokemon_name.title()}\n{pokemon_info}||"
+            description=f"> {self.bot.get_emoji(866894907741831218)} The pokemon was: {pokemon_name.title()}"
         )
         revealed_embed.set_image(url=gtp.revealed_image)
         try:
@@ -60,17 +69,13 @@ class Games(commands.Cog):
             )
         except:
             revealed_embed.color = disnake.Color.red()
-            revealed_embed.set_footer(text="Better luck new time!")
             revealed_embed.title = "Oh no, wrong guess."
             return await interaction.edit_original_message(embed=revealed_embed)
         reward = random.randint(30, 50)
         await self.bot.currency_db.add_coins_to(interaction.user.id, reward)
         await self.bot.gtp_db.add_guess(interaction.author)
+        revealed_embed.description += f"\n> {self.bot.get_emoji(941929762912342027)} Added `{reward} Pokédollars` to your account."
         revealed_embed.color = disnake.Color.green()
-        revealed_embed.set_footer(
-            text=f"{reward} Pokedollars have been added to your account.",
-            icon_url="https://cdn.discordapp.com/emojis/941929762912342027.webp?size=96",
-        )
         revealed_embed.title = "Correct!"
         await interaction.edit_original_message(embed=revealed_embed)
 
