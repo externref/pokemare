@@ -20,7 +20,7 @@ class Leaderboard(commands.Cog):
             2: self.bot.get_emoji(986111367452971008),
             3: self.bot.get_emoji(986111389376589844),
         }
-        if lb_type == "guess the pokemon global":
+        if lb_type == "whos that pokemon global":
             data_ = await self.bot.gtp_db.global_leaderboard()
             data = data_[:10]
             pos = 0
@@ -30,7 +30,7 @@ class Leaderboard(commands.Cog):
                     break
             embed = (
                 disnake.Embed(
-                    description=f"Displaying top 10 global trainers.\n\nYou are ranked `#{pos}` with `{await self.bot.gtp_db.get_guesses_for_user(interaction.user)}` correct gusses.",
+                    description=f"Displaying top 10 global trainers.\n\nYou are ranked `#{pos}` with `{await self.bot.gtp_db.get_guesses_for_user(interaction.user)}` correct guesses.",
                     color=disnake.Color.purple(),
                 )
                 .set_author(
@@ -60,7 +60,7 @@ class Leaderboard(commands.Cog):
 
     @lb_cmd.autocomplete("lb_type")
     async def lb_type_ac(self, inter: disnake.AppCommandInter, string: str) -> None:
-        all = ["guess the pokemon global"]
+        all = ["whos that pokemon global"]
         if not string:
             return all
         return [a for a in all if a.lower().startswith(string)]

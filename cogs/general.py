@@ -23,7 +23,7 @@ class General(commands.Cog):
             disnake.Embed(
                 description=f"""
 Balance: `{await self.bot.currency_db.get_coins_for(user.id)}` {self.bot.get_emoji(941929762912342027)}
-Guess the Pokemon Guesses: `{await self.bot.gtp_db.get_guesses_for_user(user)}`
+Whos that Pokemon Guesses: `{await self.bot.gtp_db.get_guesses_for_user(user)}`
             """,
                 color=disnake.Color.random(),
             )
