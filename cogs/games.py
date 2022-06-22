@@ -46,7 +46,7 @@ class Games(commands.Cog):
                 description=(
                     f"> {self.bot.get_emoji(866894894047166484)} Respond with the pokemon name.\n"
                     f"> `🎁` Rewards: `30-50 Pokédollars`, +1 wtp point.\n"
-                    f"> `⏰` Respond <{disnake.utils.format_dt(datetime.datetime.now()+datetime.timedelta(seconds=30))}>"
+                    f"> `⏰` Respond <{disnake.utils.format_dt(datetime.datetime.now()+datetime.timedelta(seconds=30),style='R')}>"
                 ),
             )
             .set_author(name="Who's that Pokemon!")
@@ -69,12 +69,12 @@ class Games(commands.Cog):
             )
         except:
             revealed_embed.color = disnake.Color.red()
-            revealed_embed.title = "Oh no, wrong guess."
+            revealed_embed.title = "Timed Out!"
             return await interaction.edit_original_message(embed=revealed_embed)
         reward = random.randint(30, 50)
         await self.bot.currency_db.add_coins_to(interaction.user.id, reward)
         await self.bot.gtp_db.add_guess(interaction.author)
-        revealed_embed.description += f"\n> {self.bot.get_emoji(941929762912342027)} Added `{reward} Pokédollars` to your account."
+        revealed_embed.description += f"\n> `🎁` Added `{reward} Pokédollars` {self.bot.get_emoji(941929762912342027)} to your account."
         revealed_embed.color = disnake.Color.green()
         revealed_embed.title = "Correct!"
         await interaction.edit_original_message(embed=revealed_embed)
