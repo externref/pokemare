@@ -21,6 +21,20 @@ class GTPObject:
     @property
     def revealed_image(self) -> disnake.File:
         return f"https://raw.githubusercontent.com/PokeMare/resources/main/revealed_pokemons/{self.pokemon_id}.png"
+    
+    
+ class WTPObject:
+    def __init__(self, bot, pokemon_name: str) - > None:
+        self.bot: PokeMare = bot
+        self.pokemon_name: str = pokemon_name
+            
+    @property
+    def hidden_image(self) -> str:
+        return f"https://raw.githubusercontent.com/PokeMare/resources/main/pokemon_hidden/{self.pokemon_name}"
+
+    @property
+    def revealed_image(self) -> disnake.File:
+        return f"https://raw.githubusercontent.com/PokeMare/resources/main/pokemon_revealed/{self.pokemon_name}"
 
 
 class Games(commands.Cog):
