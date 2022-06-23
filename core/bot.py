@@ -38,6 +38,8 @@ class PokeMare(commands.Bot):
         self.load_extensions("cogs")
         with open("data/pokemons.json", "r") as file:
             self.pokemon_dict: dict = json.load(file)
+        with open("data/wtp.json", "r") as file:
+            self.wtp_dict = json.load(file)
 
     async def on_ready(self) -> None:
         print("Bot is online!")
